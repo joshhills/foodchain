@@ -1,4 +1,4 @@
-# Food Chain
+# Foodchain
 
 ### Premise
 An online multiplayer 4x strategy game where animals fight for territory.

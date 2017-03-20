@@ -398,13 +398,22 @@ function shapeRectangle(w, h) {
     return hexes;
 }
 
-var hexes = shapeRectangle(10, 10);
+var hexes = shapeRectangle(20, 10);
 for(var i = 0; i < hexes.length; i++) {
     drawHex(ctx, myLayout, hexes[i]);
 }
 
+function getOffset(el) {
+  el = el.getBoundingClientRect();
+  return {
+    x: el.left + window.scrollX,
+    y: el.top + window.scrollY
+  }
+}
+
 canvas.addEventListener('click', function(e) {
-   colourTileRed(hex_round(pixel_to_hex(myLayout, new Point(e.clientX, e.clientY))));
+    var offset = getOffset(canvas);
+    colourTileRed(hex_round(pixel_to_hex(myLayout, new Point(e.clientX - offset.x, e.clientY - offset.y))));
 });
 
 function colourTileRed(h) {

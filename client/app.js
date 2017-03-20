@@ -5,182 +5,9 @@
  * Handle matchmaking, game logic processing and validation.
  */
 
-// Constants
-
-//const size = 50;
-//
-//// Cube functions 
-//
-//const directions = [
-//    new Cube(1, -1, 0),
-//    new Cube(1, 0, -1),
-//    new Cube(0, 1, -1),
-//    new Cube(-1, 1, 0),
-//    new Cube(-1, 0, 1),
-//    new Cube(0, -1, 1)
-//];
-//
-//function Cube(x, y, z) {
-//    if(x + y + z != 0) {
-//        throw new Error('Cube co-ordinates incorrect.');
-//    }
-//    this.x = x;
-//    this.y = y;
-//    this.z = z;
-//}
-//
-//function cubeDirection(direction) {
-//    return directions[direction];
-//}
-//
-//function cubeAdd(c1, c2) {
-//    return new Cube(c1.x + c2.x,
-//                   c1.y + c2.y,
-//                   c1.z + c2.z);
-//}
-//
-//function cubeNeighbour(c, direction) {
-//    return cubeAdd(c, cubeDirection(direction));
-//}
-//
-//function cubeDistance(c1, c2) {
-//    return (Math.abs(c1.x - c2.x)
-//            + Math.abs(c1.y - c2.y)
-//            + Math.abs(c1.z - c2.z));
-//}
-//
-//function lerp(c1, c2, t) {
-//    return c1 + (c2 - c1) * t;
-//}
-//
-//function cubeLerp(c1, c2, t) {
-//    return new Cube(
-//        lerp(c1.x, c2.x, t),
-//        lerp(c1.y, c2.y, t),
-//        lerp(c1.z, c2.z, t)
-//    );
-//}
-//
-//function cubeLine(c1, c2) {
-//    var n = cubeDistance(c1, c2);
-//    var results = [];
-//    for(var i = 0; i < n; i++) {
-//        results.push(cubeRound(cubeLerp(c1, c2, 1.0/n * i)));
-//    }
-//    return results;
-//}
-//
-//function cubeRound(h) {
-//    var rx = Math.round(h.x);
-//    var ry = Math.round(h.y);
-//    var rz = Math.round(h.z);
-//    
-//    var dx = Math.abs(rx - h.x);
-//    var dy = Math.abs(ry - h.y);
-//    var dz = Math.abs(rz - h.z);
-//    
-//    if(dx > dy && dx > dz) {
-//        rx = -ry-rz;
-//    }
-//    else if(dy > dz) {
-//        ry = -rx-rz;
-//    }
-//    else {
-//        rz = -rx-ry;
-//    }
-//    
-//    return new Cube(rx, ry, rz);
-//}
-//
-//function pixelToHex(x, y) {
-//    var q = x * 2/3 / size;
-//    var r = (-x / 3 + Math.sqrt(3)/3 * y);
-//    return cubeRound(new Cube(q, -q-r, r));
-//}
-//
-//// Display functions
-//
-///**
-// * Represent a vector point in 2D space.
-// * 
-// * @param x The x co-ordinate.
-// * @param y The y co-ordinate.
-// */
-//function Point(x, y) {
-//    this.x = x;
-//    this.y = y;
-//}
-//
-//function Tile(center, size) {
-//    this.center = center;
-//    this.width = size * 2;
-//    this.height = Math.sqrt(3)/2 * this.width;
-//    this.corners = (function() {
-//        corners = [];
-//        for(var i = 0; i < 6; i++) {
-//            corners.push(hexCorner(center, size, i));
-//        }
-//        return corners;
-//    })();
-//    this.draw = function(ctx) {
-//        ctx.beginPath();
-//        for(var i = 0; i < 6; i++) {
-//            ctx.moveTo(this.corners[i].x, this.corners[i].y);
-//            if(i == 5) {
-//                ctx.lineTo(this.corners[0].x, this.corners[0].y);
-//            } else {
-//                ctx.lineTo(this.corners[i + 1].x, this.corners[i + 1].y);   
-//            }
-//        }
-//        ctx.stroke();
-//    }
-//}
-//
-///**
-// * Compute the position of a hexagonal corner from a point.
-// *
-// * @param center    The central point of the hexagon.
-// * @param size      The size of the hexagon.
-// * @param i         The corner number to compute.
-// * @return          The Point to be computed.
-// */
-//function hexCorner(center, size, i) {
-//    var angleDeg = 60 * i;
-//    var angleRad = Math.PI / 180 * angleDeg;
-//    return new Point(center.x + size * Math.cos(angleRad),
-//                    center.y + size * Math.sin(angleRad));
-//}
-//
-////
-//
-//function drawGridBySize(rows, columns) {
-//    var startPoint = new Point(size * 2, size * 2);
-//    for(var i = 0; i < rows; i++) {
-//        currentCenter = new Point(startPoint.x, startPoint.y);
-//        currentCenter.y += (Math.sqrt(3)/2 * (size * 2)) * i;
-//        for(var j = 0; j < columns; j++) {
-//            var t = new Tile(new Point(currentCenter.x, currentCenter.y), size);
-//            t.draw(ctx);
-//            currentCenter.x += t.width * 3/4;
-//            if(j & 1) {
-//                currentCenter.y += t.height / 2;
-//            } else {
-//                currentCenter.y -= t.height / 2;
-//            }
-//        }
-//    }
-//}
-//
-//var canvas = document.getElementById('canvas');
-////canvas.addEventListener('click', function(e) {
-////    
-////});
-//var ctx = canvas.getContext('2d');
-//
-//drawGridBySize(6, 6);
-
-// Generated code -- http://www.redblobgames.com/grids/hexagons/
 "use strict";
+
+/* Memory Logic */
 
 function Point(x, y) {
     return {x: x, y: y};
@@ -362,28 +189,34 @@ function polygon_corners(layout, h)
     return corners;
 }
 
-//
+/* Display & Game Logic */
 
-function drawHex(ctx, layout, hex) {
-    var corners = polygon_corners(layout, hex);
-    ctx.beginPath();
-    ctx.strokeStyle = "black";
-    ctx.lineWidth = 1;
-    ctx.moveTo(corners[5].x, corners[5].y);
-    for (var i = 0; i < 6; i++) {
-        ctx.lineTo(corners[i].x, corners[i].y);
-    }
-    ctx.stroke();
-}
-
-// My code!
-
-var mySize = new Point(20, 20);
-var myOrigin = new Point(200, 200);
-var myLayout = new Layout(layout_flat, mySize, myOrigin);
-
+// Get a reference to the svg used as alias to a 'canvas'
 var canvas = document.getElementById('canvas');
-var ctx = canvas.getContext('2d');
+
+// Useful app-wide constants
+const size = new Point(20, 20);
+const origin = new Point(canvas.width.baseVal.value / 2, canvas.height.baseVal.value / 2);
+const layout = new Layout(layout_flat, size, origin);
+
+const TILE_TYPES = {
+    FREE: {
+        ID: 'free',
+        DESCRIPTION: 'designate a tile that is free to be claimed.'
+    },
+    SPAWN: {
+        ID: 'spawn',
+        DESCRIPTION: 'designate a tile that a player can spawn into.'
+    },
+    BLOCKED: {
+        ID: 'blocked',
+        DESCRIPTION: 'designate an impassible tile.'
+    },
+    UNSET: {
+        ID: 'unset',
+        DESCRIPTION: 'remove a tile from memory.'
+    }
+};
 
 function shapeRectangle(w, h) {
     var hexes = [];
@@ -392,38 +225,124 @@ function shapeRectangle(w, h) {
     for (var i = i1; i < i2; i++) {
         var iOffset = -Math.floor(i/2);
         for (var j = j1 + iOffset; j < j2 + iOffset; j++) {
-            hexes.push(new Hex(i, j, -i-j));
+            hexes.push(new Tile(new Hex(i, j, -i-j), TILE_TYPES.UNSET));
         }
     }
     return hexes;
 }
 
-var hexes = shapeRectangle(20, 10);
-for(var i = 0; i < hexes.length; i++) {
-    drawHex(ctx, myLayout, hexes[i]);
+var tiles = [];
+
+function drawRectangle(x, y) {
+    while(canvas.firstChild) {
+        canvas.removeChild(canvas.firstChild);
+    }
+    tiles = shapeRectangle(x, y);
+    for(var i = 0; i < tiles.length; i++) {
+        tiles[i].draw(canvas, layout);
+    }
 }
 
 function getOffset(el) {
   el = el.getBoundingClientRect();
   return {
-    x: el.left + window.scrollX,
-    y: el.top + window.scrollY
+    x: el.left,
+    y: el.top
   }
 }
 
 canvas.addEventListener('click', function(e) {
     var offset = getOffset(canvas);
-    colourTileRed(hex_round(pixel_to_hex(myLayout, new Point(e.clientX - offset.x, e.clientY - offset.y))));
+    var targetHexHash = hashCode(hex_round(pixel_to_hex(layout, new Point(e.clientX - offset.x, e.clientY - offset.y))));
+    for(var i = 0; i < tiles.length; i++) {
+        if(tiles[i].hashCode() == targetHexHash) {
+            // Found the correct tile in the data structure.
+            tiles[i].type = selectedType;
+            tiles[i].draw(canvas, layout);
+            break;
+        }
+    }
 });
 
-function colourTileRed(h) {
-    var corners = polygon_corners(myLayout, h);
-    ctx.beginPath();
-    ctx.moveTo(corners[5].x, corners[5].y);
-    for (var i = 0; i < 6; i++) {
-        ctx.lineTo(corners[i].x, corners[i].y);
+var mouseDown = false;
+canvas.addEventListener('mousedown', function(e) {
+    mouseDown = true;
+});
+canvas.addEventListener('mouseup', function(e) {
+    mouseDown = false;
+});
+canvas.addEventListener('mousemove', function(e) {
+    if(mouseDown) {
+        var offset = getOffset(canvas);
+        var targetHexHash = hashCode(hex_round(pixel_to_hex(layout, new Point(e.clientX - offset.x, e.clientY - offset.y))));
+        for(var i = 0; i < tiles.length; i++) {
+            if(tiles[i].hashCode() == targetHexHash) {
+                // Found the correct tile in the data structure.
+                tiles[i].type = selectedType;
+                tiles[i].draw(canvas, layout);
+                break;
+            }
+        }
     }
-    ctx.fillStyle = "red";
-    ctx.closePath();
-    ctx.fill();
+});
+
+function cycleType(type) {
+    switch(type.ID) {
+        case TILE_TYPES.FREE.ID:
+            return TILE_TYPES.SPAWN;
+            break;
+        case TILE_TYPES.SPAWN.ID:
+            return TILE_TYPES.BLOCKED;
+            break;
+        case TILE_TYPES.BLOCKED.ID:
+            return TILE_TYPES.UNSET;
+            break;
+        case TILE_TYPES.UNSET.ID:
+            return TILE_TYPES.FREE;
+            break;
+   } 
 }
+
+function Tile(hex, type) {
+    this.hex = hex;
+    this.type = type;
+    this.g = null;
+    this.hashCode = function() {
+        var h = 0;
+        h = h * 31 + this.hex.q;
+        h = h * 31 + this.hex.r;
+        h = h * 31 + this.hex.s;
+        return h;
+    };
+    this.draw = function(canvas, layout) {
+        // Remove it if it already exists.
+        if(this.g == null) {
+            this.g = document.createElementNS('http://www.w3.org/2000/svg','g');
+        } else {
+            canvas.removeChild(this.g);
+            this.g.removeChild(this.g.firstChild);
+        }
+        var corners = polygon_corners(layout, this.hex);
+        var center = hex_to_pixel(layout, this.hex);
+        this.g.setAttribute('id', this.hashCode());
+        this.g.setAttribute('class', 'tile ' + this.type.ID);
+        var polygon = document.createElementNS('http://www.w3.org/2000/svg','polygon');
+        var pointString = '';
+        for(var i = 0; i < corners.length; i++) {
+            pointString += corners[i].x + ',' + corners[i].y + " ";
+        }
+        polygon.setAttribute('points', pointString);
+        this.g.appendChild(polygon);
+        canvas.appendChild(this.g);
+    };
+}
+
+function hashCode(hex) {
+    var h = 0;
+    h = h * 31 + hex.q;
+    h = h * 31 + hex.r;
+    h = h * 31 + hex.s;
+    return h;
+}
+
+drawRectangle(10, 10);

@@ -45,3 +45,55 @@ function condenseMap() {
     }
     return newTiles;
 }
+
+canvas.addEventListener('click', function(e) {
+    var offset = getOffset(canvas);
+    var targetHexHash = hashCode(hex_round(pixel_to_hex(layout, new Point(e.clientX - offset.x, e.clientY - offset.y))));
+    for(var i = 0; i < tiles.length; i++) {
+        if(tiles[i].hashCode() == targetHexHash) {
+            // Found the correct tile in the data structure.
+            tiles[i].type = selectedType;
+            tiles[i].draw(canvas, layout);
+            break;
+        }
+    }
+});
+
+var mouseDown = false;
+canvas.addEventListener('mousedown', function(e) {
+    mouseDown = true;
+});
+canvas.addEventListener('mouseup', function(e) {
+    mouseDown = false;
+});
+canvas.addEventListener('mousemove', function(e) {
+    if(mouseDown) {
+        var offset = getOffset(canvas);
+        var targetHexHash = hashCode(hex_round(pixel_to_hex(layout, new Point(e.clientX - offset.x, e.clientY - offset.y))));
+        for(var i = 0; i < tiles.length; i++) {
+            if(tiles[i].hashCode() == targetHexHash) {
+                // Found the correct tile in the data structure.
+                tiles[i].type = selectedType;
+                tiles[i].draw(canvas, layout);
+                break;
+            }
+        }
+    }
+});
+
+function cycleType(type) {
+    switch(type.ID) {
+        case TILE_TYPES.FREE.ID:
+            return TILE_TYPES.SPAWN;
+            break;
+        case TILE_TYPES.SPAWN.ID:
+            return TILE_TYPES.BLOCKED;
+            break;
+        case TILE_TYPES.BLOCKED.ID:
+            return TILE_TYPES.UNSET;
+            break;
+        case TILE_TYPES.UNSET.ID:
+            return TILE_TYPES.FREE;
+            break;
+   } 
+}

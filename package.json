@@ -22,5 +22,9 @@
   "bugs": {
     "url": "https://github.com/JoshHills/foodchain/issues"
   },
-  "homepage": "https://github.com/JoshHills/foodchain#readme"
+  "homepage": "https://github.com/JoshHills/foodchain#readme",
+  "dependencies": {
+    "socket.io": "^1.4.6",
+    "socket.io-client": "^1.4.6"
+  }
 }

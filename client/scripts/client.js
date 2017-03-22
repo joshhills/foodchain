@@ -11,8 +11,10 @@
 
 /* Useful app-wide constants. */
 
+var io = require('socket.io-client');
+
 const size = new Point(20, 20);
-var origin, layout, map, canvas, clipPath, timer, scoreboard;
+var origin, layout, map, canvas, clipPath, timer, scoreboard, gameId;
 
 /* Init Functions */
 
@@ -36,6 +38,9 @@ function retrieveDisplayElements() {
     scoreboard = document.getElementById('scoreboard');
 }
 
+/**
+ * Attach event listeners to maintain represented view.
+ */
 function addEventListeners() {
     window.addEventListener('resize', handleWindowResize, true);
 }
@@ -51,13 +56,25 @@ function initLibraryPrerequisites() {
     layout = new Layout(layout_flat, size, origin);
 }
 
+function initSockets() {
+    // Get the game ID.
+    gameId = 
+    // Set up the initial connection.
+    if(!socket) {
+        socket = io({query:"gameId=" + })...
+    }
+}
+
 /**
  * Bootstrap the game.
  */
 function init() {
+    // Display
     retrieveDisplayElements();
     addEventListeners();
     initLibraryPrerequisites();
+    // Game Logic
+    initSockets();
 }
 
 /* Utility Functions */
@@ -72,6 +89,25 @@ function init() {
 function getOffset(e) {
     e = e.getBoundingClientRect();
     return new Point(e.left, e.top);
+}
+
+/**
+ * Retrieve a query string value.
+ *
+ * @param name  The name of the parameter.
+ * @param name  An optional URL containing the
+ *              query string.
+ */
+function getParameterByName(name, url) {
+    if (!url) {
+      url = window.location.href;
+    }
+    name = name.replace(/[\[\]]/g, "\\$&");
+    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+        results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, " "));
 }
 
 /**
@@ -160,6 +196,21 @@ function drawTile(t, c, l) {
     // Add the elements to the DOM.
     graphic.appendChild(polygon);
     c.appendChild(graphic);
+}
+
+/**
+ * Update the display entirely.
+ */
+function processNewTurn(turn) {
+    
+}
+
+/**
+ * Update the display to reflect new information
+ * about players.
+ */
+function updatePlayerInformation(playerInfo) {
+    
 }
 
 init();

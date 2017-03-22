@@ -1,3 +1,10 @@
+/*
+ * TODO: ASCII artwork here!
+ * TODO: Licenses link?
+ * 
+ * Generate shaped grids using hex library.
+ */
+
 function shapeRectangle(w, h) {
     var hexes = [];
     var i1 = -Math.floor(w/2), i2 = i1 + w;
@@ -9,14 +16,4 @@ function shapeRectangle(w, h) {
         }
     }
     return hexes;
-}
-
-function drawRectangle(x, y) {
-    while(canvas.firstChild) {
-        canvas.removeChild(canvas.firstChild);
-    }
-    tiles = shapeRectangle(x, y);
-    for(var i = 0; i < tiles.length; i++) {
-        tiles[i].draw(canvas, layout);
-    }
 }

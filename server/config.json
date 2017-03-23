@@ -1,0 +1,10 @@
+{
+    "PORT": 3001,
+    "TIMER": 30,
+    "MAX_FORTIFICATIONS": 2,
+    "GAME_STATES": {
+        "SETUP": "SETUP", 
+        "PROGRESS": "PROGRESS", 
+        "FINISHED": "FINISHED" 
+    }
+}

@@ -11,7 +11,7 @@
 
 /* Useful app-wide constants. */
 
-var io = require('socket.io-client');
+var socket;
 
 const size = new Point(20, 20);
 var origin, layout, map, canvas, clipPath, timer, scoreboard, gameId;
@@ -46,9 +46,11 @@ function addEventListeners() {
 }
 
 function handleWindowResize() {
-    origin = getCenteredOrigin();
-    layout = new Layout(layout_flat, size, origin);
-    drawMap(map, canvas, layout);
+    if(map) {
+        origin = getCenteredOrigin();
+        layout = new Layout(layout_flat, size, origin);
+        drawMap(map, canvas, layout);
+    }
 }
 
 function initLibraryPrerequisites() {
@@ -58,11 +60,15 @@ function initLibraryPrerequisites() {
 
 function initSockets() {
     // Get the game ID.
-    gameId = 
+    gameId = getParameterByName('gameId');
     // Set up the initial connection.
     if(!socket) {
-        socket = io({query:"gameId=" + })...
+        socket = io({query:"gameId=" + gameId});
     }
+    
+    socket.on('full', displayGameFull);
+    socket.on('timer', displayTimer)
+    socket.on('map', displayMap);
 }
 
 /**
@@ -188,9 +194,15 @@ function drawTile(t, c, l) {
     var graphic = document.createElementNS('http://www.w3.org/2000/svg','g');
     var polygon = document.createElementNS('http://www.w3.org/2000/svg','polygon');
     
-    // Tag the graphic appropriately.
+    // Tag the graphic with a hash for easier identification.
     graphic.setAttribute('id', computeHexHashCode(t.hex));
-    graphic.setAttribute('class', 'tile ' + t.type);
+
+    // Set the class(es) appropriately.
+    var classString = 'tile ' + t.type;
+    if(t.owner) {
+        classString += ' ' + t.owner.character.name;
+    }
+    graphic.setAttribute('class', classString);
     polygon.setAttribute('points', convertPointsToString(corners));
     
     // Add the elements to the DOM.
@@ -198,11 +210,20 @@ function drawTile(t, c, l) {
     c.appendChild(graphic);
 }
 
+function displayGameFull() {
+    console.log("Game is full!");
+}
+
+function displayTimer(data) {
+    timer.innerHTML = data;
+}
+
 /**
  * Update the display entirely.
  */
-function processNewTurn(turn) {
-    
+function displayMap(data) {
+    tiles = JSON.parse(data);
+    drawMap(tiles, canvas, layout);
 }
 
 /**
@@ -214,7 +235,3 @@ function updatePlayerInformation(playerInfo) {
 }
 
 init();
-
-map = [{"hex":{"q":-3,"r":1,"s":2},"type":"blocked"},{"hex":{"q":-3,"r":2,"s":1},"type":"blocked"},{"hex":{"q":-3,"r":3,"s":0},"type":"blocked"},{"hex":{"q":-2,"r":0,"s":2},"type":"blocked"},{"hex":{"q":-2,"r":1,"s":1},"type":"free"},{"hex":{"q":-2,"r":2,"s":0},"type":"free"},{"hex":{"q":-2,"r":3,"s":-1},"type":"blocked"},{"hex":{"q":-1,"r":-1,"s":2},"type":"blocked"},{"hex":{"q":-1,"r":0,"s":1},"type":"spawn"},{"hex":{"q":-1,"r":1,"s":0},"type":"free"},{"hex":{"q":-1,"r":2,"s":-1},"type":"spawn"},{"hex":{"q":-1,"r":3,"s":-2},"type":"blocked"},{"hex":{"q":0,"r":-1,"s":1},"type":"blocked"},{"hex":{"q":0,"r":0,"s":0},"type":"free"},{"hex":{"q":0,"r":1,"s":-1},"type":"free"},{"hex":{"q":0,"r":2,"s":-2},"type":"blocked"},{"hex":{"q":1,"r":-1,"s":0},"type":"blocked"},{"hex":{"q":1,"r":0,"s":-1},"type":"blocked"},{"hex":{"q":1,"r":1,"s":-2},"type":"blocked"}];
-
-drawMap(map, canvas, layout);

@@ -55,3 +55,16 @@ body {
 .panel {
     background-color: #fff;
 }
+
+.tile.owned.snake {
+    fill: green;
+}
+.tile.owned.lion {
+    fill: yellow;
+}
+.tile.free {
+    fill: white;
+}
+.tile.blocked {
+    fill: grey;
+}

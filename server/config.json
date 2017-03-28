@@ -1,0 +1,11 @@
+{
+    "PORT": 3006,
+    "TIMER": 10,
+    "MAX_CLAIMS": 3,
+    "ACTION_POINTS": 3,
+    "GAME_STATES": {
+        "SETUP": "SETUP", 
+        "PROGRESS": "PROGRESS", 
+        "FINISHED": "FINISHED" 
+    }
+}

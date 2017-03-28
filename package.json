@@ -22,5 +22,10 @@
   "bugs": {
     "url": "https://github.com/JoshHills/foodchain/issues"
   },
-  "homepage": "https://github.com/JoshHills/foodchain#readme"
+  "homepage": "https://github.com/JoshHills/foodchain#readme",
+  "dependencies": {
+    "express": "^4.15.2",
+    "socket.io": "^1.7.3"
+  },
+  "devDependencies": {}
 }

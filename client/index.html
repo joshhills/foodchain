@@ -1,9 +1,75 @@
 <html>
 	<head>
+        <!-- Meta -->
 		<title>
 			Foodchain
 		</title>
+        <!-- Styles -->
+        <link href="styles/app.css" rel="stylesheet" />
+        <!-- Scripts -->
 	</head>
-	<body>	
+	<body>
+        <!-- Wrapper -->
+        <div class="wrapper">
+            <!-- Interactable Game Area -->
+            <div class="stage">
+                <svg id="canvas" class="__canvas"></svg>
+            </div>
+            <!-- Game State UI -->
+            <div class="ui">
+                <!-- Timeline -->
+                <div id="timeline" class="__timeline panel">
+                    <!-- Icon -->
+                    <!-- History Views -->
+                    1
+                </div>
+                <!-- Clip Path -->
+                <div id="clip-path" class="__clip-path">
+                    2
+                </div>
+                <div class="__meta-container">
+                    <div class="__header panel">
+                        <!-- Timer -->
+                        <div class="__timer">
+                            <span id="timer">30</span>
+                        </div>
+                        <!-- Logo -->
+                        <div class="__logo">
+                            <img src="" alt="Food Chain Logo" />
+                        </div>
+                        <!-- Settings -->
+                        <div class="__settings">
+                            <button>Settings</button>
+                        </div>
+                    </div>
+                    <!-- Scoreboard -->
+                    <div class="__scoreboard panel">
+                        <!-- Listings -->
+                        <table class="__score">
+                            <tr id="lion" class="__listing">
+                                <td class="__name">
+                                    Pride of Lions
+                                </td>
+                                <td class="__board-coverage">
+                                    <span class="text-percentage">30</span>
+                                </td>
+                                <td class="__turn-status">
+                                    X
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <!-- Portrait -->
+                    <div id="portrait" class="__portrait panel">
+                        <p id="character-name" class="__character-name">Character</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Scripts -->
+        <script type="text/javascript" src="/socket.io/socket.io.js"></script>
+        <script type="text/javascript" src="scripts/lib.js"></script>
+        <script type="text/javascript" src="scripts/game.js"></script>
+        <script type="text/javascript" src="scripts/client.js"></script>
 	</body>
 </html>

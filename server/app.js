@@ -252,7 +252,11 @@ app.use(express.static(__dirname + '/../client'));
 
 function sendToAllPlayersOfGame(game, handler, data) {
     for(var socket of game['sockets']) {
-        socket.emit(handler, data);
+        if(handler == 'disconnect') {
+            socket.disconnect(data);
+        } else {
+            socket.emit(handler, data);   
+        }
     }
 }
 
@@ -398,6 +402,7 @@ function cycleGameTurn(game) {
         var turn = game['turn'];
         
         // TODO: Move this into claim logic.
+        // TODO: Refactor other for loops to use for-in.
         // Condense turn.
         claimedTiles = [];        
         for(var i = 0; i < turn.length; i++) {
@@ -465,16 +470,10 @@ function cycleGameTurn(game) {
         // Has game finished? Set state...
         for(var player of game['players']) {
             player['territory'] = calculateMapTerritory(player, map);
-        }
-        
-        if(game['state'] == CONFIG['GAME_STATES']['FINISHED']) {
-            // Stop the timer.
-            clearInterval(game['interval']);
-            
-            // Emit final turn?
-            
-            // Clean information.
-            
+            if(player['territory'] == 100) {
+                game['state'] = CONFIG['GAME_STATES']['FINISHED'];
+                game['winner'] = player;
+            };
         }
         
         // Update clients maps.
@@ -484,6 +483,16 @@ function cycleGameTurn(game) {
         
         // Reset timer.
         game['timer'] = CONFIG['TIMER'];
+        
+        if(game['state'] == CONFIG['GAME_STATES']['FINISHED']) {
+            // Stop the timer.
+            clearInterval(game['interval']);
+            
+            // Clean information.
+            sendToAllPlayersOfGame(game, 'winner', game['winner']);
+            sendToAllPlayersOfGame(game, 'disconnect');
+            removeGame(game);
+        }
     }
     
     game['timer'] -= 1;
@@ -534,6 +543,7 @@ function createGame(gameId) {
         timer: 0,
         players: [],
         sockets: [],
+        winner: {},
         created: new Date().getTime(),
         state: CONFIG['GAME_STATES']['SETUP'],
         map: getRandomMap(),
@@ -571,6 +581,14 @@ function addPlayerToGame(game, socket) {
         id: player['id'],
         character: player['character']
     });
+}
+
+function removeGame(game) {
+    for(i in games) {
+        if(games[i]['id'] == game['id']) {
+            games.splice(i, 1);
+        }
+    }
 }
 
 /* Sockets Registry */

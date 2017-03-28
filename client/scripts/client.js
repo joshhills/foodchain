@@ -82,6 +82,7 @@ function initSockets() {
     socket.on('claim', displayClaim);
     socket.on('player', displayPlayer);
     socket.on('players', displayPlayers);
+    socket.on('winner', displayWinner);
 }
 
 /**
@@ -263,6 +264,10 @@ function displayPlayers(data) {
         template += "<tr id=\"" + player.id + "\" class=\"__listing\"><td class=\"__name\"><span id=\"" + player.id + "-name\">" + player.character.name + "<\/span><\/td><td class=\"__board-coverage\"><span id=\"" + player.id + "-territory\" class=\"text-percentage\">" + Math.round(player.territory) + "<\/span><\/td><td class=\"__turn-status\"><span id=\"" + player.id + "-status\">0 / " + "3" + "<\/span><\/td><\/tr>";   
     }
     scoreboard.innerHTML = template;
+}
+
+function displayWinner(winner) {
+    alert(winner.character.name + 'has won.');
 }
 
 /**

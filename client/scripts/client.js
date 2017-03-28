@@ -267,7 +267,7 @@ function displayPlayers(data) {
 }
 
 function displayWinner(winner) {
-    alert(winner.character.name + 'has won.');
+    alert(winner.character.name + ' has won.');
 }
 
 /**

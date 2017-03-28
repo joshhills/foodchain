@@ -15,7 +15,7 @@ var socket;
 var tiles;
 
 const size = new Point(20, 20);
-var origin, layout, map, canvas, clipPath, timer, scoreboard, portrait, gameId;
+var origin, layout, map, canvas, clipPath, timer, scoreboard, portrait, characterName, gameId;
 
 /* Init Functions */
 
@@ -38,6 +38,7 @@ function retrieveDisplayElements() {
     timer = document.getElementById('timer');
     scoreboard = document.getElementById('scoreboard');
     portrait = document.getElementById('portrait');
+    characterName = document.getElementById('character-name');
 }
 
 /**
@@ -80,6 +81,7 @@ function initSockets() {
     socket.on('map', displayMap);
     socket.on('claim', displayClaim);
     socket.on('player', displayPlayer);
+    socket.on('players', displayPlayers);
 }
 
 /**
@@ -166,6 +168,16 @@ function convertPointsToString(p) {
     return pointsString;
 }
 
+function comparePlayers(p1, p2) {
+    if(p1['territory'] < p2['territory']) {
+        return 1;
+    }
+    if(p1['territory'] > p2['territory']) {
+        return -1;
+    }
+    return 0;
+}
+
 /* Display Functions */
 
 /**
@@ -229,12 +241,28 @@ function displayTimer(time) {
     timer.innerHTML = time;
 }
 
-function displayClaim(data) {
-    console.log(data);
+function displayClaim(claim) {
+    var status = document.getElementById(claim.player + '-status');
+    status.innerHTML = claim.claims + '/3';
 }
 
 function displayPlayer(player) {
     portrait.className += ' ' + player.character.name;
+    characterName.innerHTML = player.character.name;
+}
+
+function displayPlayers(data) {
+    players = JSON.parse(data);
+    players.sort(comparePlayers);
+    
+    // TODO: There's probably a nicer way...
+    var template = "";
+    for(var i = 0; i < players.length; i++) {
+        var player = players[i];
+        // TODO: Status.
+        template += "<tr id=\"" + player.id + "\" class=\"__listing\"><td class=\"__name\"><span id=\"" + player.id + "-name\">" + player.character.name + "<\/span><\/td><td class=\"__board-coverage\"><span id=\"" + player.id + "-territory\" class=\"text-percentage\">" + Math.round(player.territory) + "<\/span><\/td><td class=\"__turn-status\"><span id=\"" + player.id + "-status\">0 / " + "3" + "<\/span><\/td><\/tr>";   
+    }
+    scoreboard.innerHTML = template;
 }
 
 /**

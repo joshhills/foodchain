@@ -251,8 +251,8 @@ app.use(express.static(__dirname + '/../client'));
 /* Game Logic */
 
 function sendToAllPlayersOfGame(game, handler, data) {
-    for(var player of game['players']) {
-        player['socket'].emit(handler, data);
+    for(var socket of game['sockets']) {
+        socket.emit(handler, data);
     }
 }
 
@@ -374,16 +374,31 @@ function computeTileChanges(turn) {
     return tileChanges;
 }
 
+function calculateMapTerritory(player, map) {
+    var availableTiles = 0;
+    var ownedTiles = 0;
+    for(var tile of map) {
+        if(tile['type'] == TILE_TYPES.FREE || tile['type'] == TILE_TYPES.OWNED) {
+            availableTiles++;
+            if(tile['type'] == TILE_TYPES.OWNED && tile['owner']['id'] == player['id']) {
+                ownedTiles++;
+            }
+        }
+    }
+    return (ownedTiles / availableTiles) * 100;
+}
+
 function cycleGameTurn(game) {
     sendToAllPlayersOfGame(game, 'timer', game['timer']);
     
+    // Process turn.
     if(game['timer'] <= 0) {
-        // Process turn.
+        // Useful hoisted references.
+        var map = game['map']['tiles'];
+        var turn = game['turn'];
         
         // TODO: Move this into claim logic.
         // Condense turn.
-        var map = game['map']['tiles'];
-        var turn = game['turn'];
         claimedTiles = [];        
         for(var i = 0; i < turn.length; i++) {
             var tileFound = false;
@@ -431,18 +446,12 @@ function cycleGameTurn(game) {
                 // Match.
                 if(changedTiles[i]['tile'] == computeHexHashCode(map[j]['hex'])) {
                     // Update values.
-                    var tempPlayer = {};
                     for(var player of game['players']) {
                         if(player['id'] == changedTiles[i]['winner']) {
-                            tempPlayer = player;
+                            map[j]['type'] = TILE_TYPES.OWNED;
+                            map[j]['owner'] = player;
                         }
                     }
-                    var truncatedPlayer = {
-                        id: tempPlayer['id'],
-                        character: tempPlayer['character']
-                    };
-                    map[j]['type'] = TILE_TYPES.OWNED;
-                    map[j]['owner'] = truncatedPlayer;
                 }
             }
         }
@@ -454,6 +463,9 @@ function cycleGameTurn(game) {
         game['turn'] = [];
         
         // Has game finished? Set state...
+        for(var player of game['players']) {
+            player['territory'] = calculateMapTerritory(player, map);
+        }
         
         if(game['state'] == CONFIG['GAME_STATES']['FINISHED']) {
             // Stop the timer.
@@ -468,7 +480,7 @@ function cycleGameTurn(game) {
         // Update clients maps.
         sendToAllPlayersOfGame(game, 'map', JSON.stringify(game['map']['tiles']));
         // Update client's players.
-        
+        sendToAllPlayersOfGame(game, 'players', JSON.stringify(game['players']));
         
         // Reset timer.
         game['timer'] = CONFIG['TIMER'];
@@ -483,12 +495,7 @@ function startGame(game) {
     for(var tile of game['map']['tiles']) {
         if(tile['type'] == TILE_TYPES.SPAWN) {
             tile['type'] = TILE_TYPES.OWNED;
-            var tempPlayer = playersToAssign.shift();
-            var truncatedPlayer = {
-                id: tempPlayer['id'],
-                character: tempPlayer['character']
-            };
-            tile['owner'] = truncatedPlayer;
+            tile['owner'] = playersToAssign.shift();
         }
     }
     
@@ -526,6 +533,7 @@ function createGame(gameId) {
         interval: null,
         timer: 0,
         players: [],
+        sockets: [],
         created: new Date().getTime(),
         state: CONFIG['GAME_STATES']['SETUP'],
         map: getRandomMap(),
@@ -554,10 +562,11 @@ function addPlayerToGame(game, socket) {
     // Add the player to the game.
     var player = {
         id: socket['id'],
-        socket: socket,
-        character: getRandomItemFromArray(potentialCharacters)
+        character: getRandomItemFromArray(potentialCharacters),
+        territory: 0
     };
     game['players'].push(player);
+    game['sockets'].push(socket);
     socket.emit('player', {
         id: player['id'],
         character: player['character']

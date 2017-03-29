@@ -1,4 +1,4 @@
-# Foodchain
+Foodchain
 
 ### Premise
 An online multiplayer 4x strategy game where animals fight for territory.
@@ -39,6 +39,7 @@ The game ends when *g* is entirely occupied by one player, or when there is only
 
 If a player leaves mid-game, and there is more than one player left, their tiles are freed.
 
+Made By ME, Matty not josh
 ### Example
 
 ![example](https://i.imgur.com/048y4Ii.png)

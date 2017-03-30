@@ -609,6 +609,8 @@ io.on('connection', function (socket) {
     // Get the game ID requested.
     gameId = socket.handshake.query.gameId;
     
+    console.log('Player connected requesting gameId ' + gameID + ' on socket ' + socket.id);
+    
     // Find the right game.
     var found = false;
     var game = {};
@@ -620,6 +622,8 @@ io.on('connection', function (socket) {
                 if(games[i]['players'].length < games[i]['map']['players']) {
                     game = games[i];
                     addPlayerToGame(games[i], socket);
+                    console.log('=-=-=-=- GAME JOINED: =-=-=-=');
+                    console.log(games[i]);
                 } else {
                     socket.emit('full');
                     socket.disconnect();
@@ -655,6 +659,7 @@ function getRandomItemFromArray(a) {
 /* Host Page */
 
 var serverPort = process.env.PORT || CONFIG.PORT;
-http.listen(serverPort, function() {
+var host = CONFIG.HOST;
+http.listen(serverPort, host, function() {
     console.log("Server is listening on port " + serverPort);
 });

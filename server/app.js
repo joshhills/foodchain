@@ -15,11 +15,11 @@ const TILE_TYPES = {
     UNSET: 'unset'
 };
 
-function Tile(hex, type, owner, fortification) {
-    this.hex = hex;
-    this.type = type;
-    this.owner = owner;
-    this.fortification = fortification || 0;
+function Tile(hex, type, owner, claims) {
+    this.hex = hex || {};
+    this.type = type || {};
+    this.owner = owner || {};
+    this.claims = claims || 0;
 }
 
 /*
@@ -250,6 +250,19 @@ app.use(express.static(__dirname + '/../client'));
 
 /* Game Logic */
 
+function sendToPlayerOfGame(player, game, handler, data) {
+    for(var socket of game['sockets']) {
+        if(socket['id'] == player['id']) {
+            if(handler == 'disconnect') {
+                socket.disconnect(data);
+            } else {
+                socket.emit(handler, data);   
+            }
+            break;
+        }
+    }
+}
+
 function sendToAllPlayersOfGame(game, handler, data) {
     for(var socket of game['sockets']) {
         if(handler == 'disconnect') {
@@ -288,9 +301,11 @@ function findTileByHash(targetHexHash, map) {
 
 function getNumberOfClaimsInTurn(playerId, turn) {
     var claims = 0;
-    for(var i = 0; i < turn.length; i++) {
-        if(playerId == turn[i]['player']) {
-            claims++;
+    for(var tile of turn) {
+        for(var player of tile['players']) {
+            if(player['id'] == playerId) {
+                claims += player['claims'];
+            }
         }
     }
     return claims;
@@ -302,9 +317,10 @@ function checkLegalClaim(player, tile, turn) {
         return false;
     }
     
-    // Already fully fortified.
+    // Already fully claimed.
+    // TODO: Argh!
     if(tile['owner'] == player['id'] && tile['claims'] == CONFIG.MAX_CLAIMS) {
-        console.log('Alread fully fortified.');
+        console.log('Already fully claimed.');
         return false;
     }
     
@@ -313,7 +329,7 @@ function checkLegalClaim(player, tile, turn) {
         console.log('Ran out of claims.');
         return false;
     }
-
+    
     return true;
 }
 
@@ -332,47 +348,83 @@ function handleClaim(socket, targetHexHash) {
     
     // Check if it is valid.
     if(checkLegalClaim(player, tile, turn)) {
-        // Register it, tell the other players.
-        game['turn'].push({
-            player: player['id'],
-            tile: targetHexHash
-        });
-        sendToAllPlayersOfGame(game, 'claim', {
+        var turnTile;
+        
+        var tileAlreadyStaged = false;
+        for(var i in turn) {
+            if(targetHexHash == turn[i]['tile']) {
+                tileAlreadyStaged = true;
+                turnTile = turn[i];
+                var playerAlreadyStaged = false;
+                for(var j in turn[i]['players']) {
+                    if(turn[i]['players'][j]['id'] == player['id']) {
+                        playerAlreadyStaged = true;
+                        turn[i]['players'][j]['claims']++;
+                    }
+                }
+                if(!playerAlreadyStaged) {
+                    turn[i]['players'].push({
+                        id: player['id'],
+                        claims: 1
+                    });
+                }
+            }
+        }
+        if(!tileAlreadyStaged) {
+            turnTile = {
+                tile: targetHexHash,
+                players: [
+                    {
+                        id: player['id'],
+                        claims: 1
+                    }
+                ]
+            };
+            turn.push(turnTile);
+        }
+        
+        // Send the player a cut-down version of the tile within the current turn.
+        var tileToSend = JSON.parse(JSON.stringify(tile));
+        
+        for(var p of turnTile['players']) {
+            if(p['id'] == player['id']) {
+                tileToSend['claims'] = p['claims'];
+            }
+        }
+        sendToPlayerOfGame(player, game, 'claimSuccess', tileToSend);
+        
+        // Inform the rest of the players that a move has been made.
+        sendToAllPlayersOfGame(game, 'move', {
             player: player['id'],
             claims: getNumberOfClaimsInTurn(player['id'], turn)
         });
     } else {
-        // TODO: More emits!
-        console.log('Claim was false');
+        sendToPlayerOfGame(player, game, 'claimFailure', tile);
     }
 }
 
 function computeTileChanges(turn) {
-    tileChanges = []
-    for(var i = 0; i < turn.length; i++) {
+    tileChanges = [];
+    for(var change of turn) {
         var winners = [];
         var highest = 0;
-        for(var j = 0; j < turn[i]['players'].length; j++) {
-            if(turn[i]['players'][j]['claims'] > highest) {
+        for(var player of change['players']) {
+            if(player['claims'] > highest) {
                 winners = [
-                    {
-                        player: turn[i]['players'][j]['player']
-                    }
+                    player['id']
                 ];
-                highest = turn[i]['players'][j]['claims'];
+                highest = player['claims'];
             }
-            else if(turn[i]['players'][j]['claims'] == highest) {
-                console.log('We have a stalemate');
-                winners.push({
-                    player: turn[i]['players'][j]['player']
-                });
+            else if(player['claims'] == highest) {
+                console.log('We have a stalemate.');
+                winners.push(player['id']);
             }
         }
         if(winners.length == 1) {
             tileChanges.push({
-                tile: turn[i]['tile'],
-                winner: winners[0]['player']
-            });
+                tile: change['tile'],
+                winner: winners[0]
+            })
         }
     }
     return tileChanges;
@@ -401,49 +453,8 @@ function cycleGameTurn(game) {
         var map = game['map']['tiles'];
         var turn = game['turn'];
         
-        // TODO: Move this into claim logic.
-        // TODO: Refactor other for loops to use for-in.
-        // Condense turn.
-        claimedTiles = [];        
-        for(var i = 0; i < turn.length; i++) {
-            var tileFound = false;
-            for(var j = 0; j < claimedTiles.length; j++) {
-                if(turn[i]['tile'] == claimedTiles[j]['tile']) {
-                    // Add to pre-existing one.
-                    tileFound = true;
-                    playerFound = false;
-                    for(var k = 0; k < claimedTiles[j]['players'].length; k++) {
-                        if(turn[i]['player'] == claimedTiles[j]['players'][k]['player']) {
-                            // Add to pre-existing one.
-                            playerFound = true;
-                            claimedTiles[j]['players'][k]['claims']++;
-                            break;
-                        }
-                    }
-                    if(!playerFound) {
-                        claimedTiles[j]['players'].push({
-                            player: turn[i]['player'],
-                            claims: 1
-                        });
-                    }
-                    break;
-                }
-            }
-            if(!tileFound) {
-                claimedTiles.push({
-                    tile: turn[i]['tile'],
-                    players: [
-                        {
-                            player: turn[i]['player'],
-                            claims: 1
-                        }
-                    ]
-                });
-            }
-        }
-        
-        // Compute winners.
-        var changedTiles = computeTileChanges(claimedTiles);
+        // Compute winners of tiles.
+        var changedTiles = computeTileChanges(turn);
         
         // Update map tiles based on winners.
         for(var i = 0; i < changedTiles.length; i++) {

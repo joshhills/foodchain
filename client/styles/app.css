@@ -69,6 +69,16 @@ body {
     fill: grey;
 }
 
+.tile.snake.claimed > * {
+    fill: green;
+    fill-opacity: 0.33;
+}
+.tile.lion.claimed > * {
+    fill: yellow;
+    fill-opacity: 0.33;
+}
+
+
 .snake {
     background-color: green;
 }

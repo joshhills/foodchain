@@ -175,10 +175,12 @@ function hex_corner_offset(layout, corner)
     return Point(size.x * Math.cos(angle), size.y * Math.sin(angle));
 }
 
-function polygon_corners(layout, h)
+function polygon_corners(layout, h, center)
 {
     var corners = [];
-    var center = hex_to_pixel(layout, h);
+    if(!center) {
+        center = hex_to_pixel(layout, h);
+    }
     for (var i = 0; i < 6; i++)
     {
         var offset = hex_corner_offset(layout, i);

@@ -14,9 +14,9 @@ const TILE_TYPES = {
     UNSET: 'unset'
 };
 
-function Tile(hex, type, owner, fortification) {
+function Tile(hex, type, owner, claims) {
     this.hex = hex || {};
     this.type = type || {};
     this.owner = owner || {};
-    this.fortification = fortification || 0;
+    this.claims = claims || 0;
 }

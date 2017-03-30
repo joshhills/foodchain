@@ -13,8 +13,10 @@
 
 var socket;
 var tiles;
+var activePlayer;
 
 const size = new Point(20, 20);
+const sizeGap = new Point(5, 5);
 var origin, layout, map, canvas, clipPath, timer, scoreboard, portrait, characterName, gameId;
 
 /* Init Functions */
@@ -79,7 +81,9 @@ function initSockets() {
     socket.on('full', displayGameFull);
     socket.on('timer', displayTimer)
     socket.on('map', displayMap);
-    socket.on('claim', displayClaim);
+    socket.on('move', displayMove);
+    socket.on('claimSuccess', displayClaimSuccess);
+    socket.on('claimFailure', displayClaimFailure);
     socket.on('player', displayPlayer);
     socket.on('players', displayPlayers);
     socket.on('winner', displayWinner);
@@ -210,6 +214,13 @@ function drawMap(m, c, l) {
  * @param l The layout used to compute the values.
  */
 function drawTile(t, c, l) {
+    
+    // Remove the pre-existing tile.
+    currentTile = document.getElementById(computeHexHashCode(t.hex));
+    if(currentTile) {
+        c.removeChild(currentTile);
+    }
+    
     // Convert grid data to discrete format.
     var corners = polygon_corners(layout, t.hex);
     var center = hex_to_pixel(layout, t.hex);
@@ -223,7 +234,7 @@ function drawTile(t, c, l) {
 
     // Set the class(es) appropriately.
     var classString = 'tile ' + t.type;
-    if(t.owner) {
+    if(t.type == TILE_TYPES.OWNED) {
         classString += ' ' + t.owner.character.name;
     }
     graphic.setAttribute('class', classString);
@@ -242,12 +253,59 @@ function displayTimer(time) {
     timer.innerHTML = time;
 }
 
-function displayClaim(claim) {
-    var status = document.getElementById(claim.player + '-status');
-    status.innerHTML = claim.claims + '/3';
+function displayMove(move) {
+    var status = document.getElementById(move.player + '-status');
+    status.innerHTML = move.claims + '/3';
+}
+
+function displayClaimSuccess(tile) {
+    drawTileClaims(tile, canvas, layout);
+}
+
+function drawTileClaims(t, c, l) {
+    // Remove the pre-existing tile.
+    var currentTile = document.getElementById(computeHexHashCode(t.hex));
+    if(currentTile) {
+        c.removeChild(currentTile);
+    }
+    
+    // Create the necessary elements.
+    var graphic = document.createElementNS('http://www.w3.org/2000/svg','g');
+    
+    // Tag the graphic with a hash for easier identification.
+    graphic.setAttribute('id', computeHexHashCode(t.hex));
+
+    // Set the class(es) appropriately.
+    var classString = 'tile ' + t.type + ' ' + activePlayer.character.name + ' claimed';
+    
+    graphic.setAttribute('class', classString);
+    
+    for(var i = 0; i < t.claims; i++) {
+        // Alter the layout.
+        var tempSize = new Point(l.size.x - (sizeGap.x * i),
+                                 l.size.y - (sizeGap.y * i));
+        var tempLayout = new Layout(l.orientation, tempSize, l.origin);
+        
+        // Convert grid data to discrete format.
+        var center = hex_to_pixel(l, t.hex);
+        var corners = polygon_corners(tempLayout, t.hex, center);
+        
+        var polygon = document.createElementNS('http://www.w3.org/2000/svg','polygon');
+        polygon.setAttribute('points', convertPointsToString(corners));
+    
+        graphic.appendChild(polygon);
+    }
+    
+    // Add the elements to the DOM.
+    c.appendChild(graphic);
+}
+
+function displayClaimFailure(tile) {
+    
 }
 
 function displayPlayer(player) {
+    activePlayer = player;
     portrait.className += ' ' + player.character.name;
     characterName.innerHTML = player.character.name;
 }

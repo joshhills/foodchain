@@ -567,7 +567,7 @@ function createGame(gameId) {
 
 function addPlayerToGame(game, socket) {
     // Get a character that is not in use.
-    var potentialCharacters = characters;
+    var potentialCharacters = JSON.parse(JSON.stringify(characters));
     var takenCharacters = [];
     for(var player of game['players']) {
         takenCharacters.push(player['character']['name']);

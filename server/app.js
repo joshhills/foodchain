@@ -246,7 +246,9 @@ var characters = require('./characters.json');
 var games = [];
 
 // Serve the correct game page.
-app.use(express.static(__dirname + '/../client'));
+app.get('/', function(req, res) {
+    res.sendfile('/../client/index.html');
+});
 
 /* Game Logic */
 
@@ -659,7 +661,6 @@ function getRandomItemFromArray(a) {
 /* Host Page */
 
 var serverPort = process.env.PORT || CONFIG.PORT;
-var host = CONFIG.HOST;
-http.listen(serverPort, host, function() {
+http.listen(serverPort, function() {
     console.log("Server is listening on port " + serverPort);
 });

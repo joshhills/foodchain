@@ -3,10 +3,18 @@
     "HOST": "/backstage/experiments/foodchain",
     "TIMER": 10,
     "MAX_CLAIMS": 3,
-    "ACTION_POINTS": 3,
+    "ACTION_POINTS": 2,
+    "RECAP_TIME": 750,
     "GAME_STATES": {
         "SETUP": "SETUP", 
-        "PROGRESS": "PROGRESS", 
+        "PROGRESS": "PROGRESS",
+        "PAUSED": "PAUSED",
         "FINISHED": "FINISHED" 
+    },
+    "PLAYER_STATES": {
+        "LOST": "LOST",
+        "DISCONNECTED": "DISCONNECTED",
+        "PLAYING": "PLAYING",
+        "WON": "WON"
     }
 }

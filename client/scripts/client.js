@@ -17,7 +17,7 @@ var activePlayer;
 
 const size = new Point(20, 20);
 const sizeGap = new Point(5, 5);
-var origin, layout, map, canvas, clipPath, timer, scoreboard, portrait, characterName, gameId;
+var origin, layout, map, canvas, clipPath, timer, scoreboard, portrait, characterName, gameId, spectators;
 
 /* Init Functions */
 
@@ -41,6 +41,7 @@ function retrieveDisplayElements() {
     scoreboard = document.getElementById('scoreboard');
     portrait = document.getElementById('portrait');
     characterName = document.getElementById('character-name');
+    spectators = document.getElementById('spectators');
 }
 
 /**
@@ -85,8 +86,11 @@ function initSockets() {
     socket.on('claimSuccess', displayClaimSuccess);
     socket.on('claimFailure', displayClaimFailure);
     socket.on('player', displayPlayer);
+    socket.on('spectator', displaySpectator);
     socket.on('players', displayPlayers);
     socket.on('winner', displayWinner);
+    socket.on('spectators', displaySpectators);
+    socket.on('disconnected', displayPlayerDisconnected);
 }
 
 /**
@@ -214,73 +218,50 @@ function drawMap(m, c, l) {
  * @param l The layout used to compute the values.
  */
 function drawTile(t, c, l) {
-    
+    console.log(t);
     // Remove the pre-existing tile.
-    currentTile = document.getElementById(computeHexHashCode(t.hex));
-    if(currentTile) {
+    var currentTile = document.getElementById(computeHexHashCode(t.hex));
+    var currentBTile = document.getElementById('b' + computeHexHashCode(t.hex));
+    if(currentTile && currentBTile) {
         c.removeChild(currentTile);
+        c.removeChild(currentBTile);
     }
     
-    // Convert grid data to discrete format.
-    var corners = polygon_corners(layout, t.hex);
-    var center = hex_to_pixel(layout, t.hex);
+    // Add a background tile.
+    var bGraphic = document.createElementNS('http://www.w3.org/2000/svg','g');
+    bGraphic.setAttribute('id', 'b' + computeHexHashCode(t.hex));
+    bGraphic.setAttribute('class', 'tile background');
+    var bCenter = hex_to_pixel(l, t.hex);
+    var corners = polygon_corners(l, t.hex, center);
+    var bPolygon = document.createElementNS('http://www.w3.org/2000/svg','polygon');
+    bPolygon.setAttribute('points', convertPointsToString(corners));
+    bGraphic.appendChild(bPolygon);
+    c.appendChild(bGraphic);
     
     // Create the necessary elements.
     var graphic = document.createElementNS('http://www.w3.org/2000/svg','g');
-    var polygon = document.createElementNS('http://www.w3.org/2000/svg','polygon');
     
     // Tag the graphic with a hash for easier identification.
     graphic.setAttribute('id', computeHexHashCode(t.hex));
 
     // Set the class(es) appropriately.
     var classString = 'tile ' + t.type;
-    if(t.type == TILE_TYPES.OWNED) {
+    if(t.claims) {
+        classString += ' ' + activePlayer.character.name + ' claimed';
+    }
+    else if(t.type == TILE_TYPES.OWNED) {
         classString += ' ' + t.owner.character.name;
     }
-    graphic.setAttribute('class', classString);
-    polygon.setAttribute('points', convertPointsToString(corners));
     
-    // Add the elements to the DOM.
-    graphic.appendChild(polygon);
-    c.appendChild(graphic);
-}
-
-function displayGameFull() {
-    console.log("Game is full!");
-}
-
-function displayTimer(time) {
-    timer.innerHTML = time;
-}
-
-function displayMove(move) {
-    var status = document.getElementById(move.player + '-status');
-    status.innerHTML = move.claims + '/3';
-}
-
-function displayClaimSuccess(tile) {
-    drawTileClaims(tile, canvas, layout);
-}
-
-function drawTileClaims(t, c, l) {
-    // Remove the pre-existing tile.
-    var currentTile = document.getElementById(computeHexHashCode(t.hex));
-    if(currentTile) {
-        c.removeChild(currentTile);
+    graphic.setAttribute('class', classString);
+    
+    var iterator = 1;
+    if(t.claims) {
+        iterator = t.claims;
+    } else if(t.fortifications) {
+        iterator = t.fortifications;
     }
-    
-    // Create the necessary elements.
-    var graphic = document.createElementNS('http://www.w3.org/2000/svg','g');
-    
-    // Tag the graphic with a hash for easier identification.
-    graphic.setAttribute('id', computeHexHashCode(t.hex));
-
-    // Set the class(es) appropriately.
-    var classString = 'tile ' + t.type + ' ' + activePlayer.character.name + ' claimed';
-    
-    graphic.setAttribute('class', classString);
-    
-    for(var i = 0; i < t.claims; i++) {
+    for(var i = 0; i < iterator; i++) {
         // Alter the layout.
         var tempSize = new Point(l.size.x - (sizeGap.x * i),
                                  l.size.y - (sizeGap.y * i));
@@ -300,6 +281,83 @@ function drawTileClaims(t, c, l) {
     c.appendChild(graphic);
 }
 
+/**
+ * Draw a tile to a canvas with
+ * a specifically computed layout.
+ *
+ * @param t The tile to draw.
+ * @param c The DOM element to draw to.
+ * @param l The layout used to compute the values.
+ */
+function drawTileClaim(t, c, l) {
+    console.log(t);
+    // Remove the pre-existing tile.
+    if(t.type == TILE_TYPES.OWNED && t.owner.id == activePlayer.id) {
+        var currentTile = document.getElementById(computeHexHashCode(t.hex));
+        if(currentTile) {
+            c.removeChild(currentTile);
+        }
+    }
+    var currentCTile = document.getElementById('c' + computeHexHashCode(t.hex));
+    if(currentCTile) {
+        c.removeChild(currentCTile);
+    }
+    
+    // Create the necessary elements.
+    var cGraphic = document.createElementNS('http://www.w3.org/2000/svg','g');
+    
+    // Tag the graphic with a hash for easier identification.
+    cGraphic.setAttribute('id', 'c' + computeHexHashCode(t.hex));
+
+    // Set the class(es) appropriately.
+    var classString = 'tile ' + t.type + ' ' + activePlayer.character.name + ' claimed';
+    
+    cGraphic.setAttribute('class', classString);
+    
+    for(var i = 0; i < t.claims; i++) {
+        // Alter the layout.
+        var tempSize = new Point(l.size.x - (sizeGap.x * i),
+                                 l.size.y - (sizeGap.y * i));
+        var tempLayout = new Layout(l.orientation, tempSize, l.origin);
+        
+        // Convert grid data to discrete format.
+        var center = hex_to_pixel(l, t.hex);
+        var corners = polygon_corners(tempLayout, t.hex, center);
+        
+        var cPolygon = document.createElementNS('http://www.w3.org/2000/svg','polygon');
+        cPolygon.setAttribute('points', convertPointsToString(corners));
+    
+        cGraphic.appendChild(cPolygon);
+    }
+    
+    // Add the elements to the DOM.
+    c.appendChild(cGraphic);
+}
+
+function displayGameFull() {
+    console.log("Game is full!");
+}
+
+function displayTimer(time) {
+    timer.innerHTML = time;
+}
+
+function displayMove(move) {
+    var status = document.getElementById(move.player + '-status-used');
+    status.innerHTML = move.claims;
+}
+
+function displayClaimSuccess(tile) {
+    drawTileClaim(tile, canvas, layout);
+}
+
+function displayPlayerDisconnected(playerId) {
+    var listing = document.getElementById(playerId);
+    if(listing) {
+        listing.className += " disconnected";
+    }
+}
+
 function displayClaimFailure(tile) {
     
 }
@@ -308,6 +366,12 @@ function displayPlayer(player) {
     activePlayer = player;
     portrait.className += ' ' + player.character.name;
     characterName.innerHTML = player.character.name;
+}
+
+function displaySpectator() {
+    activePlayer = 'spectator';
+    portrait.className += ' ' + activePlayer;
+    characterName.innerHTML = activePlayer;
 }
 
 function displayPlayers(data) {
@@ -319,9 +383,13 @@ function displayPlayers(data) {
     for(var i = 0; i < players.length; i++) {
         var player = players[i];
         // TODO: Status.
-        template += "<tr id=\"" + player.id + "\" class=\"__listing\"><td class=\"__name\"><span id=\"" + player.id + "-name\">" + player.character.name + "<\/span><\/td><td class=\"__board-coverage\"><span id=\"" + player.id + "-territory\" class=\"text-percentage\">" + Math.round(player.territory) + "<\/span><\/td><td class=\"__turn-status\"><span id=\"" + player.id + "-status\">0 / " + "3" + "<\/span><\/td><\/tr>";   
+        template += "<tr id=\"" + player.id + "\" class=\"__listing\"><td class=\"__name\"><span id=\"" + player.id + "-name\">" + player.character.name + "<\/span><\/td><td class=\"__board-coverage\"><span id=\"" + player.id + "-territory\" class=\"text-percentage\">" + Math.round(player.territory) + "<\/span><\/td><td class=\"__turn-status\"><span id=\"" + player.id + "-status-used\">0</span> / <span id=\"" + player.id + "-status-max\">" + player.moves + "<\/span><\/td><\/tr>";   
     }
     scoreboard.innerHTML = template;
+}
+
+function displaySpectators(numSpectators) {
+    spectators.innerHTML = numSpectators;
 }
 
 function displayWinner(winner) {

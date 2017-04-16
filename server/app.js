@@ -230,10 +230,12 @@ function computeHexHashCode(hex) {
 /* Setup */
 
 // Load dependencies.
+var path    = require('path');
 var express = require('express');
+var http    = require('http');
 var app     = express();
-var http    = require('http').Server(app);
-var io      = require('socket.io')(http);
+var server  = http.createServer(app);
+var io      = require('socket.io').listen(server);
 
 // Load modular config.
 var CONFIG  = require('./config.json');
@@ -246,49 +248,80 @@ var characters = require('./characters.json');
 var games = [];
 
 // Serve the correct game page.
-app.get('/', function(req, res) {
-    res.sendfile('/../client/index.html');
+app.get('/backstage/experiments/foodchain', function(req, res) {
+    res.sendFile(path.resolve('../client/index.html'));
 });
 
 /* Game Logic */
 
-function sendToPlayerOfGame(player, game, handler, data) {
-    for(var socket of game['sockets']) {
+function sendToPlayerOfGame(player, game, handler, data, spectatorsToo) {
+    for(var socket of game['playerSockets']) {
         if(socket['id'] == player['id']) {
             if(handler == 'disconnect') {
                 socket.disconnect(data);
             } else {
                 socket.emit(handler, data);   
             }
-            break;
+        }
+    }
+    if(spectatorsToo) {
+        for(var socket of game['spectatorSockets']) {
+            if(socket['id'] == player['id']) {
+                if(handler == 'disconnect') {
+                    socket.disconnect(data);
+                } else {
+                    socket.emit(handler, data);
+                }
+            }
         }
     }
 }
 
-function sendToAllPlayersOfGame(game, handler, data) {
-    for(var socket of game['sockets']) {
+function sendToAllPlayersOfGame(game, handler, data, spectatorsToo) {
+    for(var socket of game['playerSockets']) {
         if(handler == 'disconnect') {
             socket.disconnect(data);
         } else {
             socket.emit(handler, data);   
         }
     }
-}
-
-function findGameBySocket(socket, games) {
-    for(var i = 0; i < games.length; i++) {
-        for(var j = 0; j < games[i]['players'].length; j++) {
-            if(games[i]['players'][j]['id'] == socket['id']) {
-                return games[i];
+    if(spectatorsToo) {
+        for(var socket of game['spectatorSockets']) {
+            if(handler == 'disconnect') {
+                socket.disconnect(data);
+            } else {
+                socket.emit(handler, data);
             }
         }
     }
 }
 
-function findPlayerBySocket(socket, game) {
-    for(var i = 0; i < game['players'].length; i++) {
-        if(game['players'][i]['id'] == socket['id']) {
-            return game['players'][i];
+function findGameBySocket(socket, games) {
+    for(var game of games) {
+        for(var player of game['players']) {
+            if(player['id'] == socket['id']) {
+                return game;
+            }
+        }
+        for(var spectator of game['spectatorSockets']) {
+            if(spectator['id'] == socket['id']) {
+                return game;
+            }
+        }
+    }
+}
+
+function findPlayerBySocket(socket, game, spectatorsToo) {
+    for(var player of game['players']) {
+        if(player['id'] == socket['id']) {
+            return player;
+        }
+    }
+    if(spectatorsToo) {
+        for(var spectator of game['spectatorSockets']) {
+            if(socket['id'] == spectator['id']) {
+                return spectator;
+            }
         }
     }
 }
@@ -313,22 +346,97 @@ function getNumberOfClaimsInTurn(playerId, turn) {
     return claims;
 }
 
-function checkLegalClaim(player, tile, turn) {
+function getNumberOfClaimsOnTileInTurn(playerId, turn, targetTile) {
+    for(var tile of turn) {
+        if(tile['tile'] == computeHexHashCode(targetTile['hex'])) {
+            for(var player of tile['players']) {
+                if(player['id'] == playerId) {
+                    return player['claims'];
+                }
+            }   
+        }
+    }
+    return 0;
+}
+
+function getPlayerTerritory(playerId, map) {
+    var territory = [];
+    for(var tile of map['tiles']) {
+        if(tile['owner']['id'] == playerId) {
+            territory.push(tile);
+        }
+    }
+    return territory;
+}
+
+function setTilesToFree(tiles) {
+    for(var tile of tiles) {
+        tile['owner'] = {};
+        tile['fortifications'] = 0;
+        tile['type'] = TILE_TYPES.FREE;
+    }
+}
+
+function isConnectedToTerritory(playerId, tile, map) {
+    var territory = getPlayerTerritory(playerId, map);
+    for(var direction of hex_directions) {
+        for(var ownedTile of territory) {
+            // If it is the tile being claimed...
+            if(computeHexHashCode(tile['hex']) == computeHexHashCode(ownedTile['hex'])) {
+                return true;
+            }
+            if(computeHexHashCode(hex_add(tile['hex'], direction)) == computeHexHashCode(ownedTile['hex'])) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+function isConnectedToStagedClaim(playerId, tile, turn, map) {
+    for(var direction of hex_directions) {
+        for(var move of turn) {
+            if(computeHexHashCode(hex_add(tile['hex'], direction)) == move['tile']) {
+                for(var player of move['players']) {
+                    if(player['id'] == playerId) {
+                        // If the player will win the staged tile unopposed.
+                        for(var mTile of map['tiles']) {
+                            if(computeHexHashCode(mTile['hex']) == move['tile']) {
+                                if(player['claims'] >= mTile['fortifications']) {
+                                    return true;
+                                }
+                            }
+                        }
+                        
+                    }
+                }
+            }
+        }
+    }
+    return false;
+}
+
+function checkLegalClaim(player, tile, turn, map) {
     // Incorrect tile type.
     if(tile['type'] == TILE_TYPES.BLOCKED) {
         return false;
     }
     
     // Already fully claimed.
-    // TODO: Argh!
-    if(tile['owner'] == player['id'] && tile['claims'] == CONFIG.MAX_CLAIMS) {
+    if(tile['owner']['id'] == player['id'] && getNumberOfClaimsOnTileInTurn(player['id'], turn, tile) + tile['fortifications'] >= CONFIG.MAX_CLAIMS) {
         console.log('Already fully claimed.');
         return false;
     }
     
     // Ran out of claims.
-    if(getNumberOfClaimsInTurn(player['id'], turn) == CONFIG.MAX_CLAIMS) {
+    if(getNumberOfClaimsInTurn(player['id'], turn) == player['moves']) {
         console.log('Ran out of claims.');
+        return false;
+    }
+    
+    // Not on the boundary of territory.
+    if(!(isConnectedToTerritory(player['id'], tile, map) || isConnectedToStagedClaim(player['id'], tile, turn, map))) {
+        console.log('Not connected to territory or staged claim.');
         return false;
     }
     
@@ -338,7 +446,15 @@ function checkLegalClaim(player, tile, turn) {
 function handleClaim(socket, targetHexHash) {
     // Find the correct place to make claim.
     var game = findGameBySocket(socket, games);
+    
+    // To prevent muddied inputs.
+    if(game['state'] == CONFIG['GAME_STATES']['PAUSED']) {
+        return;
+    }
+    
+    // For code clarity...
     var turn = game['turn'];
+    var map = game['map'];
     var player = findPlayerBySocket(socket, game);
     var tile = findTileByHash(targetHexHash, game['map']);
     
@@ -349,7 +465,7 @@ function handleClaim(socket, targetHexHash) {
     }
     
     // Check if it is valid.
-    if(checkLegalClaim(player, tile, turn)) {
+    if(checkLegalClaim(player, tile, turn, map)) {
         var turnTile;
         
         var tileAlreadyStaged = false;
@@ -385,12 +501,17 @@ function handleClaim(socket, targetHexHash) {
             turn.push(turnTile);
         }
         
-        // Send the player a cut-down version of the tile within the current turn.
+        // Send the player a copy of the tile within the current turn.
         var tileToSend = JSON.parse(JSON.stringify(tile));
         
         for(var p of turnTile['players']) {
             if(p['id'] == player['id']) {
-                tileToSend['claims'] = p['claims'];
+                if(player['id'] == tile['owner']['id']) {
+                    tileToSend['claims'] = p['claims'] + tile['fortifications'];
+                }
+                else {
+                    tileToSend['claims'] = p['claims'];
+                }
             }
         }
         sendToPlayerOfGame(player, game, 'claimSuccess', tileToSend);
@@ -399,34 +520,73 @@ function handleClaim(socket, targetHexHash) {
         sendToAllPlayersOfGame(game, 'move', {
             player: player['id'],
             claims: getNumberOfClaimsInTurn(player['id'], turn)
-        });
+        }, true);
     } else {
         sendToPlayerOfGame(player, game, 'claimFailure', tile);
     }
 }
 
-function computeTileChanges(turn) {
+function computeTileChanges(turn, map) {
     tileChanges = [];
+    // Find the tile reference.
     for(var change of turn) {
-        var winners = [];
-        var highest = 0;
-        for(var player of change['players']) {
-            if(player['claims'] > highest) {
-                winners = [
-                    player['id']
-                ];
-                highest = player['claims'];
+        for(var tile of map) {
+            if(computeHexHashCode(tile['hex']) == change['tile']) {
+                var winners = [];
+                var highest = 0;
+                var numForeignClaims = 0;
+                var numFortificationRequests = 0;
+                
+                for(var player of change['players']) {
+                    // Update the amount of times the tile has been claimed by which people.
+                    if(player['id'] == tile['owner']['id']) {
+                        numFortificationRequests += player['claims'];
+                    } else {
+                        numForeignClaims += player['claims'];
+                    }
+                    
+                    // See if this is the highest claimant.
+                    if(player['claims'] > highest) {
+                        winners = [
+                            player
+                        ];
+                        highest = player['claims'];
+                    }
+                    else if(player['claims'] == highest) {
+                        console.log('We have a stalemate.');
+                        winners.push(player);
+                    }
+                }
+                
+                // Fortifications.
+                if(tile['type'] == TILE_TYPES.OWNED) {
+                    tile['fortifications'] += numFortificationRequests;
+                };
+                
+                // If there was only one winner and it was somebody different to the current owner.
+                if(winners.length == 1 && (tile['type'] == TILE_TYPES.FREE || tile['owner']['id'] != winners[0]['id'])) {
+                    if(tile['type'] == TILE_TYPES.FREE || tile['fortifications'] - winners[0]['claims'] < 1) {
+                        tileChanges.push({
+                            tile: change['tile'],
+                            winner: winners[0]['id']
+                        });
+                    }
+                }
+                
+                // Free tile if there has been a big fight for it.
+                if(tile['type'] == TILE_TYPES.OWNED && tile['fortifications'] - numForeignClaims < 1) {
+                    tile['type'] = TILE_TYPES.FREE;
+                    tile['owner'] = {};
+                    tile['fortifications'] = 0;
+                } else if(tile['type'] == TILE_TYPES.OWNED) {
+                    tile['fortifications'] -= numForeignClaims;
+                }
+                
+                if(tile['fortifications'] < 0) {
+                    console.log('shit');
+                }
+
             }
-            else if(player['claims'] == highest) {
-                console.log('We have a stalemate.');
-                winners.push(player['id']);
-            }
-        }
-        if(winners.length == 1) {
-            tileChanges.push({
-                tile: change['tile'],
-                winner: winners[0]
-            })
         }
     }
     return tileChanges;
@@ -446,69 +606,359 @@ function calculateMapTerritory(player, map) {
     return (ownedTiles / availableTiles) * 100;
 }
 
-function cycleGameTurn(game) {
-    sendToAllPlayersOfGame(game, 'timer', game['timer']);
-    
-    // Process turn.
-    if(game['timer'] <= 0) {
-        // Useful hoisted references.
-        var map = game['map']['tiles'];
-        var turn = game['turn'];
-        
-        // Compute winners of tiles.
-        var changedTiles = computeTileChanges(turn);
-        
-        // Update map tiles based on winners.
-        for(var i = 0; i < changedTiles.length; i++) {
-            for(var j = 0; j < map.length; j++) {
-                // Match.
-                if(changedTiles[i]['tile'] == computeHexHashCode(map[j]['hex'])) {
-                    // Update values.
-                    for(var player of game['players']) {
-                        if(player['id'] == changedTiles[i]['winner']) {
-                            map[j]['type'] = TILE_TYPES.OWNED;
-                            map[j]['owner'] = player;
+function getConnectedTiles(tile, territory, cumulative) {
+    if(!cumulative) {
+        cumulative = [tile];
+    }
+    // For every direction attached from the current tile...
+    for(var direction of hex_directions) {
+        // If it's present in the territory...
+        for(var ownedTile of territory) {
+            if(computeHexHashCode(hex_add(tile['hex'], direction)) == computeHexHashCode(ownedTile['hex'])) {
+                // If it has already been logged...
+                var alreadyLogged = false;
+                for(var lTile of cumulative) {
+                    if(computeHexHashCode(lTile['hex']) == computeHexHashCode(ownedTile['hex'])) {
+                        alreadyLogged = true;
+                        break;
+                    }
+                }
+                if(!alreadyLogged) {
+                    cumulative.push(ownedTile);
+                    getConnectedTiles(ownedTile, territory, cumulative);
+                }
+            }
+        }
+    }
+    return cumulative;
+}
+
+function getTileSubsets(tiles) {
+    var subsets = [];
+    for(var tile of tiles) {
+        var alreadyIncluded = false;
+        for(var subset of subsets) {
+            for(var sTile of subset) {
+                if(computeHexHashCode(tile['hex']) == computeHexHashCode(sTile['hex'])) {
+                    alreadyIncluded = true;
+                    break;
+                }
+            }
+            if(alreadyIncluded) {
+                break;
+            }
+        }
+        if(!alreadyIncluded) {
+            subsets.push(getConnectedTiles(tile, tiles));
+        }
+    }
+    return subsets;
+}
+
+function getFreeTiles(map) {
+    var freeTiles = [];
+    for(var tile of map['tiles']) {
+        if(tile['type'] == TILE_TYPES.FREE) {
+            freeTiles.push(tile);
+        }
+    }
+    return freeTiles;
+}
+
+function getEdgeTiles(map, territory) {
+    var edgeTiles = [];
+    // Sanitisation.
+    if(territory[0]) {
+        // Get comparison.
+        var playerId = territory[0]['owner']['id'];
+        // For every player-owned tile in the subset...
+        for(var tTile of territory) {
+            var shouldAdd = false;
+            // For every direction around it...
+            for(var direction of hex_directions) {
+                for(var mTile of map['tiles']) {
+                    // Find a corresponding map tile if it exists.
+                    if(computeHexHashCode(mTile['hex']) == computeHexHashCode(hex_add(tTile['hex'], direction))) {
+                        // If the tile is not owned by the player.
+                        if(mTile['type'] != TILE_TYPES['OWNED'] || mTile['owner']['id'] != playerId) {
+                            shouldAdd = true;
+                            break;
+                        }
+                    }
+                }
+                if(shouldAdd) {
+                    break;
+                }
+            }
+            if(shouldAdd) {
+                edgeTiles.push(tTile);
+            }
+        }
+    }
+    return edgeTiles;
+}
+
+function encircledBy(map, edgeTiles) {
+    var encircler = null;
+    // Sanitisation.
+    if(edgeTiles[0]) {
+        // Get comparison.
+        var playerId = edgeTiles[0]['owner']['id'];
+        // For every edge tile...
+        for(var eTile of edgeTiles) {
+            // For every direction around it...
+            for(var direction of hex_directions) {
+                for(var mTile of map['tiles']) {
+                    // Find a corresponding map tile if it exists.
+                    if(computeHexHashCode(mTile['hex']) == computeHexHashCode(hex_add(eTile['hex'], direction))) {
+                        // If it is not an owned tile, the territory is not encircled.
+                        if((mTile['type'] != TILE_TYPES.OWNED)) {
+                            return false;
+                        } else {
+                            // Prevent redundant own-tile checking.
+                            if(mTile['owner']['id'] != playerId) {
+                                // Check for first assignment.
+                                if(encircler == null) {
+                                    encircler = mTile['owner'];
+                                } else if(encircler['id'] != mTile['owner']['id']) {
+                                    return false;
+                                }
+                            }
                         }
                     }
                 }
             }
         }
-        
-        // TODO: More features here...
-        
-        // Finished fighting, clean turn.
-        game['turns'].push(game['turn']);
-        game['turn'] = [];
-        
-        // Has game finished? Set state...
-        for(var player of game['players']) {
-            player['territory'] = calculateMapTerritory(player, map);
-            if(player['territory'] == 100) {
-                game['state'] = CONFIG['GAME_STATES']['FINISHED'];
-                game['winner'] = player;
-            };
-        }
-        
-        // Update clients maps.
-        sendToAllPlayersOfGame(game, 'map', JSON.stringify(game['map']['tiles']));
-        // Update client's players.
-        sendToAllPlayersOfGame(game, 'players', JSON.stringify(game['players']));
-        
-        // Reset timer.
-        game['timer'] = CONFIG['TIMER'];
-        
-        if(game['state'] == CONFIG['GAME_STATES']['FINISHED']) {
-            // Stop the timer.
-            clearInterval(game['interval']);
-            
-            // Clean information.
-            sendToAllPlayersOfGame(game, 'winner', game['winner']);
-            sendToAllPlayersOfGame(game, 'disconnect');
-            removeGame(game);
+    }
+    return encircler;
+}
+
+function countPlayerTiles(playerId, map) {
+    var tileCount = 0;
+    for(var tile of map['tiles']) {
+        if(tile['type'] == TILE_TYPES.OWNED && tile['owner']['id'] == playerId) {
+            tileCount++;
         }
     }
-    
-    game['timer'] -= 1;
+    return tileCount;
+}
+
+function cycleGameTurn(game) {
+    if(game['state'] != CONFIG['GAME_STATES']['PAUSED']) {
+        // Figure out if we can skip the turn.
+        var okayToSkip = true;
+        for(var player of game['players']) {
+            if(player['state'] == CONFIG['PLAYER_STATES']['PLAYING'] && getNumberOfClaimsInTurn(player['id'], game['turn']) != player['moves']) {
+                okayToSkip = false;
+            }
+        }
+        if(okayToSkip) {
+            game['timer'] = 0;
+        } else {
+            sendToAllPlayersOfGame(game, 'timer', game['timer'], true);
+        }
+
+        // Process turn.
+        if(game['timer'] <= 0) {
+            // Lock the turn to prevent muddied inputs.
+            game['state'] = CONFIG['GAME_STATES']['PAUSED'];
+
+            // Useful hoisted references.
+            var map = game['map']['tiles'];
+            var turn = game['turn'];
+
+            // Compute winners of tiles.
+            var changedTiles = computeTileChanges(turn, map);
+
+            // Update map tiles based on winners.
+            for(var i = 0; i < changedTiles.length; i++) {
+                for(var j = 0; j < map.length; j++) {
+                    // Match.
+                    if(changedTiles[i]['tile'] == computeHexHashCode(map[j]['hex'])) {
+                        // Update values.
+                        for(var player of game['players']) {
+                            if(player['id'] == changedTiles[i]['winner']) {
+                                map[j]['type'] = TILE_TYPES.OWNED;
+                                map[j]['owner'] = player;
+                                map[j]['fortifications'] = 1;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Erase smaller subsets.
+            for(var player of game['players']) {
+                var playerTerritory = getPlayerTerritory(player['id'], game['map']);
+                var subsets = getTileSubsets(playerTerritory);
+                if(subsets.length > 1) {
+                    var largestSubsetSize = -1;
+                    var largestSubset = [];
+                    for(var subset of subsets) {
+                        if(subset.length > largestSubsetSize) {
+                            largestSubsetSize = subset.length;
+                            largestSubset = [subset];
+                        } else if(subset.length == largestSubsetSize) {
+                            largestSubset.push(subset);
+                        }
+                    }
+                    var tilesToKeep = getRandomItemFromArray(largestSubset, true);
+                    for(var tile of playerTerritory) {
+                        var found = false;
+                        for(var kTile of tilesToKeep) {
+                            if(computeHexHashCode(tile['hex']) == computeHexHashCode(kTile['hex'])) {
+                                found = true;
+                                break;
+                            }
+                        }
+                        if(!found) {
+                            tile['owner'] = {};
+                            tile['type'] = TILE_TYPES.FREE;
+                        }
+                    }
+                }
+            }
+
+            // TODO: Clean this up you cretin.
+            // Check for free tile enclosures.
+            var freeTiles = getFreeTiles(game['map']);
+            var freeTileSubsets = getTileSubsets(freeTiles);
+            for(var freeTileSubset of freeTileSubsets) {
+                var edgeTiles = [];
+                for(var freeTile of freeTileSubset) {
+                    var shouldAdd = false;
+                    for(var direction of hex_directions) {
+                        for(var mTile of game['map']['tiles']) {
+                            if(computeHexHashCode(hex_add(freeTile['hex'], direction)) == computeHexHashCode(mTile['hex'])) {
+                                if(mTile['type'] != TILE_TYPES.FREE) {
+                                    shouldAdd = true;
+                                }
+                            }
+                        }
+                    }
+                    if(shouldAdd) {
+                        edgeTiles.push(freeTile);
+                    }
+                }
+                var shouldConvert = true;
+                var conversionTarget = null;
+                for(var edgeTile of edgeTiles) {
+                    for(var direction of hex_directions) {
+                        for(var mTile of game['map']['tiles']) {
+                            if(computeHexHashCode(hex_add(edgeTile['hex'], direction)) == computeHexHashCode(mTile['hex'])) {
+                                if(mTile['type'] != TILE_TYPES.FREE) {
+                                    if(mTile['type'] != TILE_TYPES.OWNED) {
+                                        shouldConvert = false;
+                                        break;
+                                    }
+                                    if(conversionTarget == null) {
+                                        conversionTarget = mTile['owner'];
+                                    } else if(mTile['owner']['id'] != conversionTarget['id']) {
+                                        shouldConvert = false;
+                                        break;
+                                    }    
+                                }
+                            }
+                        }
+                        if(!shouldConvert) {
+                            break;
+                        }
+                    }
+                    if(!shouldConvert) {
+                        break;
+                    }
+                }
+                if(shouldConvert) {
+                    for(var freeTile of freeTileSubset) {
+                        freeTile['type'] = TILE_TYPES.OWNED;
+                        freeTile['owner'] = conversionTarget;
+                    }
+                }   
+            }
+
+            // Check for player tile enclosures assuming their territory is contiguous.
+            for(var player of game['players']) {
+                // Get the player territory.
+                var playerTerritory = getPlayerTerritory(player['id'], game['map']);
+                // Get the edge tiles of their territory.
+                var edgeTiles = getEdgeTiles(game['map'], playerTerritory);
+                // Find out if they are encircled.
+                var encircler = encircledBy(game['map'], edgeTiles);
+                if(encircler) {
+                    // Convert the tiles to a different player.
+                    for(var tile of playerTerritory) {
+                        tile['owner'] = encircler;
+                    }
+                }
+            }
+
+            // Finished fighting, clean turn.
+            game['turns'].push(game['turn']);
+            game['turn'] = [];
+
+            // Has game finished? Set state...
+            var winner = {};
+            var stillPlaying = 0;
+            for(var player of game['players']) {
+                player['territory'] = calculateMapTerritory(player, map);
+                // If they've lost...
+                if(player['territory'] == 0) {
+                    player['state'] = CONFIG['PLAYER_STATES']['LOST'];
+                }
+                // If they've disconnected...
+                else if(player['state'] == CONFIG['PLAYER_STATES']['DISCONNECTED']) {
+                    setTilesToFree(getPlayerTerritory(player['id'], game['map']));
+                }
+                else {
+                    stillPlaying++;
+                }
+            }
+            if(stillPlaying == 1) {
+                // Set the game to be finished.
+                game['state'] = CONFIG['GAME_STATES']['FINISHED'];
+                // Find the winner and set them as such.
+                for(var player of game['players']) {
+                    if(player['state'] == CONFIG['PLAYER_STATES']['PLAYING']) {
+                        player['state'] == CONFIG['PLAYER_STATES']['WON'];
+                        winner = player;
+                    }
+                }
+            }
+
+            // Update the amount of action points each player has.
+            for(var player of game['players']) {
+                var tileCount = countPlayerTiles(player['id'], game['map']);
+                player['moves'] = CONFIG['ACTION_POINTS'] + Math.floor(Math.sqrt(tileCount));
+            }
+
+            // Update clients maps.
+            sendToAllPlayersOfGame(game, 'map', JSON.stringify(game['map']['tiles']), true);
+            // Update client's players.
+            sendToAllPlayersOfGame(game, 'players', JSON.stringify(game['players']), true);
+
+            setTimeout(function() {
+                // Reset timer.
+                game['timer'] = CONFIG['TIMER'];
+
+                if(game['state'] == CONFIG['GAME_STATES']['FINISHED']) {
+                    // Stop the timer.
+                    clearInterval(game['interval']);
+
+                    // Clean information.
+                    sendToAllPlayersOfGame(game, 'winner', winner, true);
+                    sendToAllPlayersOfGame(game, 'disconnect', true);
+                    removeGame(game);
+                } else {
+                    // Unlock the turn.
+                    game['state'] = CONFIG['GAME_STATES']['PROGRESS'];
+                }
+            }, CONFIG['RECAP_TIME'] * game['players'].length);
+
+        }
+        if(game['state'] == CONFIG['GAME_STATES']['PROGRESS']) {
+            game['timer'] -= 1;
+        }
+    }
 }
 
 function startGame(game) {
@@ -518,11 +968,14 @@ function startGame(game) {
         if(tile['type'] == TILE_TYPES.SPAWN) {
             tile['type'] = TILE_TYPES.OWNED;
             tile['owner'] = playersToAssign.shift();
+            tile['fortifications'] = 1;
         }
     }
     
     // Set the game state to be correct.
     game["state"] = CONFIG['GAME_STATES']['PROGRESS'];
+    
+    sendToAllPlayersOfGame(game, 'start', null, true);
     
     // Begin the game loop.
     cycleGameTurn(game);
@@ -543,7 +996,7 @@ function getRandomGameId() {
 
 function getRandomMap() {
     // TODO: Make context-based decision.
-    return getRandomItemFromArray(maps);
+    return getRandomItemFromArray(maps, true);
 }
 
 function createGame(gameId) {
@@ -555,7 +1008,8 @@ function createGame(gameId) {
         interval: null,
         timer: 0,
         players: [],
-        sockets: [],
+        playerSockets: [],
+        spectatorSockets: [],
         winner: {},
         created: new Date().getTime(),
         state: CONFIG['GAME_STATES']['SETUP'],
@@ -569,37 +1023,64 @@ function createGame(gameId) {
 
 function addPlayerToGame(game, socket) {
     // Get a character that is not in use.
+    var character = null;
     var potentialCharacters = JSON.parse(JSON.stringify(characters));
-    var takenCharacters = [];
-    for(var player of game['players']) {
-        takenCharacters.push(player['character']['name']);
-    }
-    for(var i = 0; i < potentialCharacters.length; i++) {
-        for(var j = 0; j < takenCharacters.length; j++) {
-            if(potentialCharacters[i]['name'] == takenCharacters[j]) {
-                potentialCharacters.splice(i, 1);
-            }
+    for(var potentialCharacter of potentialCharacters) {
+        var found = false;
+        for(var player of game['players']) {
+            if(player['character']['name'] == potentialCharacter['name']) {
+                found = true;
+                break;
+            }   
+        }
+        if(!found) {
+            character = potentialCharacter;
+            break;
         }
     }
     
     // Add the player to the game.
     var player = {
         id: socket['id'],
-        character: getRandomItemFromArray(potentialCharacters),
-        territory: 0
+        character: character,
+        territory: 0,
+        moves: CONFIG['ACTION_POINTS'] + 1,
+        state: CONFIG['PLAYER_STATES']['PLAYING']
     };
     game['players'].push(player);
-    game['sockets'].push(socket);
+    game['playerSockets'].push(socket);
     socket.emit('player', {
         id: player['id'],
         character: player['character']
     });
+    sendToAllPlayersOfGame(game, 'players', JSON.stringify(game['players']), true);
+}
+
+function addSpectatorToGame(game, socket) {
+    game['spectatorSockets'].push(socket);
+    socket.emit('spectator');
 }
 
 function removeGame(game) {
     for(i in games) {
         if(games[i]['id'] == game['id']) {
             games.splice(i, 1);
+        }
+    }
+}
+
+function removePlayerFromGame(socket) {
+    var game = findGameBySocket(socket, games);
+    var player = findPlayerBySocket(socket, game);
+    player['state'] = CONFIG['PLAYER_STATES']['DISCONNECTED'];
+}
+
+function removeSpectatorFromGame(socket) {
+    var game = findGameBySocket(socket, games);
+    var spectator = findPlayerBySocket(socket, game, true);
+    for(var s in game['spectatorSockets']) {
+        if(game['spectatorSockets'][s]['id'] == spectator['id']) {
+            game['spectatorSockets'].splice(s, 1);
         }
     }
 }
@@ -611,7 +1092,7 @@ io.on('connection', function (socket) {
     // Get the game ID requested.
     gameId = socket.handshake.query.gameId;
     
-    console.log('Player connected requesting gameId ' + gameID + ' on socket ' + socket.id);
+    console.log('Player connected requesting gameId ' + gameId + ' on socket ' + socket.id);
     
     // Find the right game.
     var found = false;
@@ -621,19 +1102,23 @@ io.on('connection', function (socket) {
             // Game already exists.
             if(games[i]['id'] == gameId) {
                 found = true;
-                if(games[i]['players'].length < games[i]['map']['players']) {
-                    game = games[i];
-                    addPlayerToGame(games[i], socket);
-                    console.log('=-=-=-=- GAME JOINED: =-=-=-=');
-                    console.log(games[i]);
+                game = games[i];
+                if(game['players'].length < game['map']['players']) {
+                    addPlayerToGame(game, socket);
                 } else {
-                    socket.emit('full');
-                    socket.disconnect();
+                    addSpectatorToGame(game, socket);
+                    sendToAllPlayersOfGame(game, 'spectators', game['spectatorSockets'].length, true);
+                    sendToPlayerOfGame(socket, game, 'map', JSON.stringify(game['map']['tiles']), true);
+                    socket.on('disconnect', function() {
+                        removeSpectatorFromGame(socket);
+                        sendToAllPlayersOfGame(game, 'spectators', game['spectatorSockets'].length, true);
+                    });
                     return;
                 }
             }
         }
     }
+    // TODO: Matchmaking...
     if(!found) {
         game = createGame(gameId);
         addPlayerToGame(game, socket);
@@ -642,7 +1127,6 @@ io.on('connection', function (socket) {
     // If there are enough players to fulfill the map requirements...
     if(game['players'].length == game['map']['players']) {
         // Set the game to be in progress.
-        console.log('Starting game');
         startGame(game);
     }
     
@@ -650,17 +1134,25 @@ io.on('connection', function (socket) {
     socket.on('claim', function(data) {
         handleClaim(socket, data)
     });
+    socket.on('disconnect', function() {
+        removePlayerFromGame(socket);
+        sendToAllPlayersOfGame(game, 'disconnected', socket['id'], true);
+    });
 });
 
 /* Utility Functions */
 
-function getRandomItemFromArray(a) {
-    return a[Math.floor(Math.random()*a.length)];
+function getRandomItemFromArray(a, c) {
+    if(c) {
+        return JSON.parse(JSON.stringify(a[Math.floor(Math.random()*a.length)]));
+    } else {
+        return a[Math.floor(Math.random()*a.length)];
+    }
 }
 
 /* Host Page */
 
 var serverPort = process.env.PORT || CONFIG.PORT;
-http.listen(serverPort, function() {
+server.listen(serverPort, function() {
     console.log("Server is listening on port " + serverPort);
 });

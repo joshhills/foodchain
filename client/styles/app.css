@@ -52,36 +52,67 @@ body {
     margin: 2rem 0 2rem 0;
 }
 
+.ui .__meta-container .__scoreboard .__listing.disconnected {
+    color: red;
+}
+
 .panel {
     background-color: #fff;
 }
 
-.tile.owned.snake {
-    fill: green;
-}
-.tile.owned.lion {
-    fill: yellow;
-}
-.tile.free {
+.tile.free,
+.tile.background {
     fill: white;
 }
 .tile.blocked {
     fill: grey;
 }
 
-.tile.snake.claimed > * {
+.tile.claimed {
+    transform-origin:50% 50%;
+    transform: scale(1.1);
+    animation-name: pulse_animation;
+	animation-duration: 1500ms;
+	animation-iteration-count: infinite;
+	animation-timing-function: ease-in-out;
+}
+
+@keyframes pulse_animation {
+	0% { transform: scale(1.1); }
+	50% { transform: scale(1.20); }
+	0% { transform: scale(1.1); }
+}
+
+.tile.snake.claimed > *,
+.tile.snake.owned > * {
     fill: green;
     fill-opacity: 0.33;
 }
-.tile.lion.claimed > * {
-    fill: yellow;
+.tile.bear.claimed > *,
+.tile.bear.owned > * {
+    fill: brown;
     fill-opacity: 0.33;
 }
-
+.tile.cow.claimed > *,
+.tile.cow.owned > * {
+    fill: orange;
+    fill-opacity: 0.33;
+}
+.tile.whale.claimed > *,
+.tile.whale.owned > * {
+    fill: blue;
+    fill-opacity: 0.33;
+}
 
 .snake {
     background-color: green;
 }
-.lion {
-    background-color: yellow;
+.whale {
+    background-color: blue;
+}
+.cow {
+    background-color: orange;
+}
+.bear {
+    background-color: brown;
 }

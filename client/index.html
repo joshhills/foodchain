@@ -1,65 +1,121 @@
 <html>
-	<head>
-       	<script type="text/javascript" src="https://jumbledjargon.tech/socket.io/socket.io.js"></script>
-	<!-- Meta -->
+    <head>
+        <script type="text/javascript" src="https://jumbledjargon.tech/socket.io/socket.io.js"></script>
+        <!-- Meta -->
 		<title>
 			Foodchain
 		</title>
         <!-- Styles -->
-        <link href="client/styles/app.css" rel="stylesheet" />
+        <link href="styles/app.css" rel="stylesheet" />
         <!-- Scripts -->
 	</head>
-	<body>
+	<body class="character-redpanda">
         <!-- Wrapper -->
         <div class="wrapper">
             <!-- Interactable Game Area -->
             <div class="stage">
+                <svg id="background" class="__canvas--state-background"></svg>
                 <svg id="canvas" class="__canvas"></svg>
             </div>
             <!-- Game State UI -->
-            <div class="ui">
-                <!-- Timeline -->
-                <div id="timeline" class="__timeline panel">
-                    <!-- Icon -->
-                    <!-- History Views -->
-                    1
+            <div class="ui" id="ui">
+                <!-- Controls -->
+                <div id="controls" class="__controls">
+                    <div class="__controls-panel panel">
+                        <!-- Timer -->
+                        <div class="__timer control">
+                            <img src="images/icons/icon-timer.svg" alt="timer" />
+                            <span id="timer">
+                                30
+                            </span>
+                        </div>
+                        <!-- Spectators -->
+                        <div class="__spectators control">
+                            <img src="images/icons/icon-spectators.svg" alt="spectators" />
+                            <span id="spectators">
+                                0
+                            </span>
+                        </div>
+                        <!-- Replay -->
+                        <div id="replay" class="__replay control">
+                            <img src="images/icons/icon-replay.svg" alt="replay" />
+                        </div>
+                        <!-- Hint -->
+                        <div id="hint" class="__hint control">
+                            <img src="images/icons/icon-hint.svg" />
+                        </div>
+                    </div>
+                    <!-- Logo -->
+                    <div class="__logo">
+                        <img src="images/logo-zoo.svg" />
+                    </div>
                 </div>
                 <!-- Clip Path -->
                 <div id="clip-path" class="__clip-path">
-                    2
+                    &nbsp;
                 </div>
-                <div class="__meta-container">
-                    <div class="__header panel">
-                        <!-- Timer -->
-                        <div class="__timer">
-                            <span id="timer">30</span>
-                        </div>
-                        <!-- Logo -->
-                        <div class="__logo">
-                            <img src="" alt="Food Chain Logo" />
-                        </div>
-                        <!-- Settings -->
-                        <div class="__settings">
-                            <button>Settings</button>
-                        </div>
-                    </div>
+                <div class="__meta">
                     <!-- Scoreboard -->
-                    <div class="__scoreboard panel">
+                    <div id="scoreboard-panel" class="__scoreboard panel">
+                        <p class="__title">
+                            Scoreboard
+                        </p>
                         <!-- Listings -->
-                        <table id="scoreboard" class="__score">
+                        <table id="scoreboard">
+                            <!-- Listing -->
+                            <tr class="listing character-redpanda">
+                                <td>
+                                    <svg xmlns="http://www.w3.org/2000/svg" id="Layer_1" data-name="Layer 1" viewBox="0 0 32.33 28"><title>icon-hexagon</title><polygon points="24.25 0 8.08 0 0 14 8.08 28 24.25 28 32.33 14 24.25 0"/></svg>
+                                </td>
+                                <td>
+                                    Red Pandas
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                </td>
+                                <td>
+                                    <span class="text-percentage">30</span> Board
+                                </td>
+                                <td>
+                                    0/3
+                                </td>
+                            </tr>
+                            <!-- Listing -->
+                            <tr class="listing character-viper lost">
+                                <td>
+                                    <svg xmlns="http://www.w3.org/2000/svg" id="Layer_1" data-name="Layer 1" viewBox="0 0 32.33 28"><title>icon-hexagon</title><polygon points="24.25 0 8.08 0 0 14 8.08 28 24.25 28 32.33 14 24.25 0"/></svg>
+                                </td>
+                                <td>
+                                    Vipers
+                                </td>
+                            </tr>
+                            <tr class="listing lost">
+                                <td>
+                                </td>
+                                <td>
+                                    <span class="text-percentage">30</span> Board
+                                </td>
+                                <td>
+                                    3/3
+                                </td>
+                            </tr>
                         </table>
-                        <span id="spectators">0</span> spectators
                     </div>
-                    <!-- Portrait -->
-                    <div id="portrait" class="__portrait panel">
-                        <p id="character-name" class="__character-name">Character</p>
+                    <!-- Character -->
+                    <div class="__character panel">
+                        <div class="__character-name">
+                            <p id="character-name" class="__title">Red Panda</p>
+                            <img src="images/icons/icon-information.svg" alt="Information about this character..." id="character-information" class="__information" />
+                        </div>
+                        <img class="__character-portrait" src="images/characters/character-redpanda.svg" alt="Red Panda" />
                     </div>
                 </div>
             </div>
         </div>
         <!-- Scripts -->
-        <script type="text/javascript" src="client/scripts/lib.js"></script>
-        <script type="text/javascript" src="client/scripts/game.js"></script>
-        <script type="text/javascript" src="client/scripts/client.js"></script>
+        <script type="text/javascript" src="scripts/lib.js"></script>
+        <script type="text/javascript" src="scripts/game.js"></script>
+        <script type="text/javascript" src="scripts/client.js"></script>
 	</body>
 </html>

@@ -11,12 +11,14 @@ const TILE_TYPES = {
     SPAWN: 'spawn',
     OWNED: 'owned',
     BLOCKED: 'blocked',
-    UNSET: 'unset'
+    UNSET: 'unset',
+    BACKGROUND: 'background'
 };
 
-function Tile(hex, type, owner, claims) {
+function Tile(hex, type, owner, claims, fortifications) {
     this.hex = hex || {};
     this.type = type || {};
     this.owner = owner || {};
     this.claims = claims || 0;
+    this.fortifications = fortifications || 0;
 }

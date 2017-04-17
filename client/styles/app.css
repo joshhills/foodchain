@@ -1,19 +1,14 @@
 @import url('https://fonts.googleapis.com/css?family=Quicksand');
 
+/* UI */
+
 body {
-    background-color: #555;
     font-family: 'Quicksand', sans-serif;
     margin: 0;
 }
 
 .text-percentage:after {
     content: '%';
-}
-
-.wrapper {
-    padding: 2rem;
-    width: calc(100% - 4rem);
-    height: calc(100% - 4rem);
 }
 
 .stage {
@@ -23,49 +18,183 @@ body {
     width: 100%;
     height: 100%;
 }
+.stage:after {
+    content: " ";
+    position: absolute;
+    opacity: 0.2;
+    width: 100%;
+    height: 100%;
+    background-color: #000;
+}
 .stage .__canvas {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+.stage .__canvas--state-background {
+    position: absolute;
     width: 100%;
     height: 100%;
 }
 
 .ui {
+    position: absolute;
+    top: 0;
+    left: 0;
+    padding: 1.5rem;
+    width: calc(100vw - 3rem);
+    height: calc(100vh - 3rem);
     display: flex;
-    height: 100%;
-    width: 100%;
 }
-.ui .__timeline {
-    min-width: 5vw;
-    margin-right: 2rem;
-}
-.ui .__clip-path {
-    flex-grow: 1;
-}
-.ui .__meta-container {
-    min-width: 25vw;
-    margin-left: 2rem;
+.ui .__controls {
+    max-width: 9vw;
+    margin-right: 1.5rem;
     display: flex;
     flex-direction: column;
 }
 
-.ui .__meta-container .__scoreboard {
+.ui .__controls .__controls-panel {
+    height: calc(80vh - 4.5rem);
+    margin-bottom: 1.5rem;
+}
+
+.ui .__controls .__controls-panel .control {
+    position: relative;
+    padding: .5rem;
+    height: calc(25% - 1rem);
+}
+.ui .__controls .__controls-panel .control img {
+    height: 100%;
+    width: 100%;
+}
+.ui .__controls .__controls-panel > .control span {
+    width: 50%;
+    height: 50%;
+    overflow: auto;
+    margin: auto;
+    position: absolute;
+    top: 30px; left: 0; bottom: 0; right: 0;
+    font-weight: bolder;
+    font-size: 1.5rem;
+    text-align: center;
+}
+.ui .__controls .__controls-panel .__timer.control img {
+    width: 135%;
+    height: 135%;
+    position: relative;
+    left: -20%;
+    top: -25%;
+}
+.ui .__controls .__controls-panel .__spectators.control img {
+    width: 120%;
+    height: 125%;
+    position: relative;
+    left: -10%;
+    top: -10%; 
+}
+.ui .__controls .__logo {
     flex-grow: 1;
-    margin: 2rem 0 2rem 0;
+    padding: .5rem;
 }
 
-.ui .__meta-container .__scoreboard .__listing.disconnected {
-    color: red;
-}
-
-.panel {
+.ui .__clip-path {
+    flex-grow: 1;
     background-color: #fff;
+    border-radius: 10px;
+    opacity: 0.2;
 }
 
-.tile.free,
-.tile.background {
-    fill: white;
+.ui .__meta {
+    min-width: 20vw;
+    margin-left: 1.5rem;
+    display: flex;
+    flex-direction: column;
 }
+
+.ui .__meta .__scoreboard {
+    flex-grow: 1;
+    margin-bottom: 1.5rem;
+    padding: .5rem;
+}
+.ui .__meta .__scoreboard .__title{
+    text-transform: uppercase;
+    font-weight: bold;
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: .5rem;
+}
+.ui .__meta .__scoreboard .listing.character-redpanda {
+    color: #b42206;
+    fill: #b42206;
+    font-weight: bold;
+}
+.ui .__meta .__scoreboard .listing.character-viper {
+    color: #3bbe31;
+    fill: #3bbe31;
+    font-weight: bold;
+}
+.ui .__meta .__scoreboard .listing svg {
+    width: .9rem;
+}
+.ui .__meta .__scoreboard .listing.lost {
+    opacity: .25;
+}
+
+.ui .__meta .__character {
+    text-align: center;
+}
+.ui .__meta .__character .__character-name .__title {
+    text-transform: uppercase;
+    font-weight: bold;
+    display: inline-block;
+    color: #fff;
+}
+.ui .__meta .__character .__character-name .__information {
+    height: 1.5rem;
+    position: relative;
+    top: .45rem;
+    display: inline;
+    color: #fff;
+}
+.ui .__meta .__character .__character-portrait  {
+    width: 85%;
+}
+
+
+.panel,
+#scoreboard-panel {
+    background-color: #fff;
+    border: 5px solid black;
+    border-radius: 10px;
+}
+body.character-redpanda .panel {
+    background-color: #b42206;
+    border: 5px solid #4c1414;
+    border-radius: 10px;
+}
+
+table {
+    width: 100%;
+}
+
+/* Games */
+
+body.character-redpanda .tile {
+    stroke: #4c1414;
+    stroke-width: 5px;
+}
+
 .tile.blocked {
-    fill: grey;
+    fill: #3f3f3f;
+}
+
+/* Unrefactored */
+
+.tile.free {
+    fill: #fff;
+}
+.tile.background {
+    fill: #858577;
 }
 
 .tile.claimed {

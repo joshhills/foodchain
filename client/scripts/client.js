@@ -15,11 +15,15 @@ var socket;
 var tiles;
 var activePlayer;
 
-const size = new Point(20, 20);
+const size = new Point(30, 30);
 const sizeGap = new Point(5, 5);
-var origin, layout, map, canvas, clipPath, timer, scoreboard, portrait, characterName, gameId, spectators;
+var origin, layout, map, background, canvas, clipPath, timer, scoreboard, portrait, characterName, gameId, spectators;
 
 /* Init Functions */
+
+var map = [
+    {"hex":{"q":-4,"r":0,"s":4},"type":"blocked","owner":{},"claims":0,"fortifications":0},{"hex":{"q":-4,"r":1,"s":3},"type":"blocked","owner":{},"claims":0,"fortifications":0},{"hex":{"q":-4,"r":2,"s":2},"type":"blocked","owner":{},"claims":0,"fortifications":0},{"hex":{"q":-4,"r":3,"s":1},"type":"blocked","owner":{},"claims":0,"fortifications":0},{"hex":{"q":-3,"r":-1,"s":4},"type":"blocked","owner":{},"claims":0,"fortifications":0},{"hex":{"q":-3,"r":0,"s":3},"type":"free","owner":{},"claims":0,"fortifications":0},{"hex":{"q":-3,"r":1,"s":2},"type":"free","owner":{},"claims":0,"fortifications":0},{"hex":{"q":-3,"r":2,"s":1},"type":"free","owner":{},"claims":0,"fortifications":0},{"hex":{"q":-3,"r":3,"s":0},"type":"blocked","owner":{},"claims":0,"fortifications":0},{"hex":{"q":-2,"r":-2,"s":4},"type":"blocked","owner":{},"claims":0,"fortifications":0},{"hex":{"q":-2,"r":-1,"s":3},"type":"free","owner":{},"claims":0,"fortifications":0},{"hex":{"q":-2,"r":0,"s":2},"type":"free","owner":{},"claims":0,"fortifications":0},{"hex":{"q":-2,"r":1,"s":1},"type":"free","owner":{},"claims":0,"fortifications":0},{"hex":{"q":-2,"r":2,"s":0},"type":"free","owner":{},"claims":0,"fortifications":0},{"hex":{"q":-2,"r":3,"s":-1},"type":"blocked","owner":{},"claims":0,"fortifications":0},{"hex":{"q":-1,"r":-3,"s":4},"type":"blocked","owner":{},"claims":0,"fortifications":0},{"hex":{"q":-1,"r":-2,"s":3},"type":"spawn","owner":{},"claims":0,"fortifications":0},{"hex":{"q":-1,"r":-1,"s":2},"type":"free","owner":{},"claims":0,"fortifications":0},{"hex":{"q":-1,"r":0,"s":1},"type":"free","owner":{},"claims":0,"fortifications":0},{"hex":{"q":-1,"r":1,"s":0},"type":"free","owner":{},"claims":0,"fortifications":0},{"hex":{"q":-1,"r":2,"s":-1},"type":"spawn","owner":{},"claims":0,"fortifications":0},{"hex":{"q":-1,"r":3,"s":-2},"type":"blocked","owner":{},"claims":0,"fortifications":0},{"hex":{"q":0,"r":-3,"s":3},"type":"blocked","owner":{},"claims":0,"fortifications":0},{"hex":{"q":0,"r":-2,"s":2},"type":"free","owner":{},"claims":0,"fortifications":0},{"hex":{"q":0,"r":-1,"s":1},"type":"free","owner":{},"claims":0,"fortifications":0},{"hex":{"q":0,"r":0,"s":0},"type":"free","owner":{},"claims":0,"fortifications":0},{"hex":{"q":0,"r":1,"s":-1},"type":"free","owner":{},"claims":0,"fortifications":0},{"hex":{"q":0,"r":2,"s":-2},"type":"blocked","owner":{},"claims":0,"fortifications":0},{"hex":{"q":1,"r":-3,"s":2},"type":"blocked","owner":{},"claims":0,"fortifications":0},{"hex":{"q":1,"r":-2,"s":1},"type":"free","owner":{},"claims":0,"fortifications":0},{"hex":{"q":1,"r":-1,"s":0},"type":"free","owner":{},"claims":0,"fortifications":0},{"hex":{"q":1,"r":0,"s":-1},"type":"free","owner":{},"claims":0,"fortifications":0},{"hex":{"q":1,"r":1,"s":-2},"type":"blocked","owner":{},"claims":0,"fortifications":0},{"hex":{"q":2,"r":-3,"s":1},"type":"blocked","owner":{},"claims":0,"fortifications":0},{"hex":{"q":2,"r":-2,"s":0},"type":"blocked","owner":{},"claims":0,"fortifications":0},{"hex":{"q":2,"r":-1,"s":-1},"type":"blocked","owner":{},"claims":0,"fortifications":0},{"hex":{"q":2,"r":0,"s":-2},"type":"blocked","owner":{},"claims":0,"fortifications":0}
+];
 
 /**
  * Compute the center point from which the map
@@ -36,6 +40,7 @@ function getCenteredOrigin() {
  */
 function retrieveDisplayElements() {
     canvas = document.getElementById('canvas');
+    background = document.getElementById('background');
     clipPath = document.getElementById('clip-path');
     timer = document.getElementById('timer');
     scoreboard = document.getElementById('scoreboard');
@@ -57,6 +62,7 @@ function handleWindowResize() {
         origin = getCenteredOrigin();
         layout = new Layout(layout_flat, size, origin);
         drawMap(map, canvas, layout);
+        drawBackground(background, layout);
     }
 }
 
@@ -101,8 +107,12 @@ function init() {
     retrieveDisplayElements();
     addEventListeners();
     initLibraryPrerequisites();
+    
     // Game Logic
-    initSockets();
+    drawBackground(background, layout);
+    drawMap(map, canvas, layout);
+    
+    // initSockets();
 }
 
 /* Utility Functions */
@@ -209,6 +219,17 @@ function drawMap(m, c, l) {
     }
 }
 
+function drawBackground(b, l) {
+    clearElementOfChildren(b);
+    for(var i = -15; i < 15; i++) {
+        for(var j = -15; j < 15; j++) {
+            for(var k = -15; k < 15; k++) {
+                drawTile(new Tile({q: i, r: j, s: k}, TILE_TYPES.BACKGROUND), b, l, true);           
+            }
+        }
+    }
+}
+
 /**
  * Draw a tile to a canvas with
  * a specifically computed layout.
@@ -217,33 +238,38 @@ function drawMap(m, c, l) {
  * @param c The DOM element to draw to.
  * @param l The layout used to compute the values.
  */
-function drawTile(t, c, l) {
-    console.log(t);
+function drawTile(t, c, l, isBackground) {
     // Remove the pre-existing tile.
-    var currentTile = document.getElementById(computeHexHashCode(t.hex));
-    var currentBTile = document.getElementById('b' + computeHexHashCode(t.hex));
-    if(currentTile && currentBTile) {
-        c.removeChild(currentTile);
-        c.removeChild(currentBTile);
+    if(!isBackground) {
+        var currentTile = document.getElementById(computeHexHashCode(t.hex));
+        var currentBTile = document.getElementById('b' + computeHexHashCode(t.hex));
+        if(currentTile && currentBTile) {
+            c.removeChild(currentTile);
+            c.removeChild(currentBTile);
+        }
     }
     
     // Add a background tile.
-    var bGraphic = document.createElementNS('http://www.w3.org/2000/svg','g');
-    bGraphic.setAttribute('id', 'b' + computeHexHashCode(t.hex));
-    bGraphic.setAttribute('class', 'tile background');
-    var bCenter = hex_to_pixel(l, t.hex);
-    var corners = polygon_corners(l, t.hex, center);
-    var bPolygon = document.createElementNS('http://www.w3.org/2000/svg','polygon');
-    bPolygon.setAttribute('points', convertPointsToString(corners));
-    bGraphic.appendChild(bPolygon);
-    c.appendChild(bGraphic);
+    if(!isBackground) {
+        var bGraphic = document.createElementNS('http://www.w3.org/2000/svg','g');
+        bGraphic.setAttribute('id', 'b' + computeHexHashCode(t.hex));
+        bGraphic.setAttribute('class', 'tile background');
+        var bCenter = hex_to_pixel(l, t.hex);
+        var corners = polygon_corners(l, t.hex, center);
+        var bPolygon = document.createElementNS('http://www.w3.org/2000/svg','polygon');
+        bPolygon.setAttribute('points', convertPointsToString(corners));
+        bGraphic.appendChild(bPolygon);
+        c.appendChild(bGraphic);
+    }
     
     // Create the necessary elements.
     var graphic = document.createElementNS('http://www.w3.org/2000/svg','g');
     
     // Tag the graphic with a hash for easier identification.
-    graphic.setAttribute('id', computeHexHashCode(t.hex));
-
+    if(!isBackground) {
+        graphic.setAttribute('id', computeHexHashCode(t.hex));
+    }
+        
     // Set the class(es) appropriately.
     var classString = 'tile ' + t.type;
     if(t.claims) {
@@ -290,7 +316,6 @@ function drawTile(t, c, l) {
  * @param l The layout used to compute the values.
  */
 function drawTileClaim(t, c, l) {
-    console.log(t);
     // Remove the pre-existing tile.
     if(t.type == TILE_TYPES.OWNED && t.owner.id == activePlayer.id) {
         var currentTile = document.getElementById(computeHexHashCode(t.hex));

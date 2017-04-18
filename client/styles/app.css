@@ -98,6 +98,10 @@ body {
     flex-grow: 1;
     padding: .5rem;
 }
+.ui .__controls .__logo img {
+    height: 1px;
+    width: 1px;
+}
 
 .ui .__clip-path {
     flex-grow: 1;

@@ -154,7 +154,7 @@ body {
     position: relative;
     text-align: center;
     flex-shrink: 1;
-    flex-basis: 30vh;
+    flex-basis: 50vh;
 }
 .ui .__meta .__character .__character-name .__title {
     text-transform: uppercase;
@@ -170,7 +170,7 @@ body {
     color: #fff;
 }
 .ui .__meta .__character .__character-portrait  {
-    width: 85%;
+    width: 75%;
     position: absolute; 
     left: 0; 
     right: 0;

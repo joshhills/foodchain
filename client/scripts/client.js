@@ -52,7 +52,7 @@ function retrieveDisplayElements() {
     clipPath = document.getElementById('clip-path');
     timer = document.getElementById('timer');
     scoreboard = document.getElementById('scoreboard');
-    portrait = document.getElementById('character-portrait');
+    characterPotrait = document.getElementById('character-portrait');
     characterName = document.getElementById('character-name');
     spectators = document.getElementById('spectators');
 }

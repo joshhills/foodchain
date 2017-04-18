@@ -66,12 +66,12 @@ function addEventListeners() {
 }
 
 function handleWindowResize() {
-    if(tiles) {
         origin = getCenteredOrigin();
         layout = new Layout(layout_flat, size, origin);
-        drawMap(tiles, canvas, layout);
         drawBackground(background, layout);
-    }
+        if(tiles) {
+            drawMap(tiles, canvas, layout);
+        }
 }
 
 function handleCanvasClick(e) {

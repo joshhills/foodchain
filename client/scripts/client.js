@@ -430,8 +430,8 @@ function displayPlayer(player) {
 }
 
 function displaySpectator() {
-    activePlayer = 'spectator';
-    portrait.className += ' ' + activePlayer;
+    activePlayer = 'Spectator';
+    // TODO: Spectator portrait
     characterName.innerHTML = activePlayer;
 }
 

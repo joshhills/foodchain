@@ -62,7 +62,7 @@ function retrieveDisplayElements() {
  */
 function addEventListeners() {
     window.addEventListener('resize', handleWindowResize, true);
-    canvas.addEventListener('click', handleCanvasClick, true);
+    clipPath.addEventListener('click', handleCanvasClick, true);
 }
 
 function handleWindowResize() {

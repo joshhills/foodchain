@@ -190,6 +190,9 @@ body.character-redpanda .tile {
     stroke: #4c1414;
     stroke-width: 5px;
 }
+.tile.claimed {
+    stroke: none;
+}
 body .tile.character-redpanda.claimed > *,
 body .tile.character-redpanda.owned > * {
     fill: #7d2612;

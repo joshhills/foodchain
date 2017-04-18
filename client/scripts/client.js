@@ -289,7 +289,7 @@ function drawTile(t, c, l, isBackground) {
         classString += ' ' + activePlayer.character.class + ' claimed';
     }
     else if(t.type == TILE_TYPES.OWNED) {
-        classString += ' ' + t.owner.character.name;
+        classString += ' ' + t.owner.character.class;
     }
     
     graphic.setAttribute('class', classString);

@@ -17,7 +17,7 @@ var claims = [];
 var activePlayer;
 
 const size = new Point(30, 30);
-const sizeGap = new Point(5, 5);
+const sizeGap = new Point(10, 10);
 var origin, layout, map, background, canvas, clipPath, timer, scoreboard, characterPotrait, characterName, gameId, spectators;
 
 /* Init Functions */

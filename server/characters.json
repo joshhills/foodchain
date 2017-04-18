@@ -1,14 +1,11 @@
 [
     {
-        "name": "snake"
+        "name": "Red Panda",
+        "class": "redpanda"
+        
     },
     {
-        "name": "whale"
-    },
-    {
-        "name": "bear"
-    },
-    {
-        "name": "cow"
+        "name": "Rhino",
+        "class": "rhino"
     }
 ]

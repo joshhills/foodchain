@@ -183,19 +183,33 @@ body.character-redpanda .tile {
     stroke: #4c1414;
     stroke-width: 5px;
 }
+body.character-redpanda .tile.claimed > *,
+body.character-redpanda .tile.owned > * {
+    fill: #7d2612;
+    fill-opacity: 0.33;
+}
+
+body.character-rhino .tile {
+    stroke: #4d1154;
+    stroke-width: 5px;
+}
+body.character-rhino .tile.claimed > *,
+body.character-rhino .tile.owned > * {
+    fill: #4d22c9;
+    fill-opacity: 0.33;
+}
 
 .tile.blocked {
     fill: #3f3f3f;
 }
-
-/* Unrefactored */
-
 .tile.free {
     fill: #fff;
 }
 .tile.background {
     fill: #858577;
 }
+
+/* Unrefactored */
 
 .tile.claimed {
     transform-origin:50% 50%;
@@ -210,38 +224,4 @@ body.character-redpanda .tile {
 	0% { transform: scale(1.1); }
 	50% { transform: scale(1.20); }
 	0% { transform: scale(1.1); }
-}
-
-.tile.snake.claimed > *,
-.tile.snake.owned > * {
-    fill: green;
-    fill-opacity: 0.33;
-}
-.tile.bear.claimed > *,
-.tile.bear.owned > * {
-    fill: brown;
-    fill-opacity: 0.33;
-}
-.tile.cow.claimed > *,
-.tile.cow.owned > * {
-    fill: orange;
-    fill-opacity: 0.33;
-}
-.tile.whale.claimed > *,
-.tile.whale.owned > * {
-    fill: blue;
-    fill-opacity: 0.33;
-}
-
-.snake {
-    background-color: green;
-}
-.whale {
-    background-color: blue;
-}
-.cow {
-    background-color: orange;
-}
-.bear {
-    background-color: brown;
 }

@@ -238,7 +238,7 @@ function drawBackground(b, l) {
 
 function pointInView(point) {
     return  (point.x >= 0 &&
-            point.x <= 0 window.innerWidth &&
+            point.x <= window.innerWidth &&
             point.y >= 0 &&
             point.y <= window.innerHeight);
 }

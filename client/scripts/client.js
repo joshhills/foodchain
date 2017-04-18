@@ -66,10 +66,10 @@ function addEventListeners() {
 }
 
 function handleWindowResize() {
-    if(map) {
+    if(tiles) {
         origin = getCenteredOrigin();
         layout = new Layout(layout_flat, size, origin);
-        drawMap(map, canvas, layout);
+        drawMap(tiles, canvas, layout);
         drawBackground(background, layout);
     }
 }
@@ -236,6 +236,13 @@ function drawBackground(b, l) {
     }
 }
 
+function pointInView(point) {
+    return  (point.x >= 0 &&
+            point.x <= 0 window.innerWidth &&
+            point.y >= 0 &&
+            point.y <= window.innerHeight);
+}
+
 /**
  * Draw a tile to a canvas with
  * a specifically computed layout.
@@ -301,6 +308,12 @@ function drawTile(t, c, l, isBackground) {
         
         // Convert grid data to discrete format.
         var center = hex_to_pixel(l, t.hex);
+        
+        // Is it out of view? If so, don't draw it.
+        if(!pointInView(center)) {
+            return false;
+        }
+        
         var corners = polygon_corners(tempLayout, t.hex, center);
         
         var polygon = document.createElementNS('http://www.w3.org/2000/svg','polygon');
@@ -353,6 +366,11 @@ function drawTileClaim(t, c, l) {
         
         // Convert grid data to discrete format.
         var center = hex_to_pixel(l, t.hex);
+        // Is it out of view? If so, don't draw it.
+        if(!pointInView(center)) {
+            return false;
+        }
+        
         var corners = polygon_corners(tempLayout, t.hex, center);
         
         var cPolygon = document.createElementNS('http://www.w3.org/2000/svg','polygon');
@@ -414,6 +432,7 @@ function displayPlayers(data) {
     var template = '<tr class=\"listing character-{0}\"><td><svg xmlns="http://www.w3.org/2000/svg" id="Layer_1" data-name="Layer 1" viewBox="0 0 32.33 28"><title>icon-hexagon</title><polygon points="24.25 0 8.08 0 0 14 8.08 28 24.25 28 32.33 14 24.25 0"/></svg><\/td><td>{1}s<\/td><\/tr><tr><td><\/td><td><span id=\"{2}-territory\" class=\"text-percentage\">30<\/span> Board<\/td><td><span id=\"{2}-status-used\">0<\/span>\/<span id=\"{2}-status-max\">3<\/span><\/td><\/tr>';
     var scoreboardHTML = '';
     for(var player of players) {
+        console.log(String.format(template, player.character.class, player.character.name, player.id));
         scoreboardHTML += String.format(template, player.character.class, player.character.name, player.id);   
     }
     scoreboard.innerHTML = template;

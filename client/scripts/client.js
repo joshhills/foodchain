@@ -414,9 +414,9 @@ function displayPlayers(data) {
     // TODO: There's probably a nicer way...
     var template = '<tr class=\"listing character-{0}\"><td><svg xmlns="http://www.w3.org/2000/svg" id="Layer_1" data-name="Layer 1" viewBox="0 0 32.33 28"><title>icon-hexagon</title><polygon points="24.25 0 8.08 0 0 14 8.08 28 24.25 28 32.33 14 24.25 0"/></svg><\/td><td>{1}s<\/td><\/tr><tr><td><\/td><td><span id=\"{3}-territory\" class=\"text-percentage\">30<\/span> Board<\/td><td><span id=\"{3}-status-used\">0<\/span>\/<span id=\"{0}-status-max\">3<\/span><\/td><\/tr>';
     var scoreboardHTML = '';
-    for(var i = 0; i < players.length; i++) {
-        var player = players[i];
+    for(var player of players) {
         // TODO: Status.
+        console.log(player);
         console.log(String.format(template, player.character.class, player.character.name, player.id));
         scoreboardHTML += String.format(template, player.character.class, player.character.name, player.id);   
     }

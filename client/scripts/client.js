@@ -12,7 +12,8 @@
 /* Useful app-wide constants. */
 
 var socket;
-var tiles;
+var tiles = [];
+var claims = [];
 var activePlayer;
 
 const size = new Point(30, 30);
@@ -71,6 +72,9 @@ function handleWindowResize() {
         drawBackground(background, layout);
         if(tiles) {
             drawMap(tiles, canvas, layout);
+        }
+        for(var claim of claims) {
+            drawTile(claim, canvas, layout);
         }
 }
 
@@ -390,6 +394,10 @@ function displayGameFull() {
 }
 
 function displayTimer(time) {
+    // TODO: New on.
+    if(time == 10) {
+        claims = [];
+    }
     timer.innerHTML = time;
 }
 
@@ -399,6 +407,7 @@ function displayMove(move) {
 }
 
 function displayClaimSuccess(tile) {
+    claims.push(tile);
     drawTileClaim(tile, canvas, layout);
 }
 

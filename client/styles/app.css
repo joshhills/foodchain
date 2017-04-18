@@ -191,7 +191,7 @@ body.character-redpanda .tile {
     stroke-width: 5px;
 }
 .tile.claimed {
-    stroke: none;
+    stroke: none !important;
 }
 body .tile.character-redpanda.claimed > *,
 body .tile.character-redpanda.owned > * {

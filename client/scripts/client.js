@@ -416,6 +416,7 @@ function displayPlayers(data) {
     for(var i = 0; i < players.length; i++) {
         var player = players[i];
         // TODO: Status.
+        console.log(String.format(template, player.character.class, player.character.name, player.id));
         scoreboardHTML += String.format(template, player.character.class, player.character.name, player.id);   
     }
     scoreboard.innerHTML = template;

@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css?family=Quicksand');
 
 /* UI */
-
+z`
 html {
     height: 100vh;
     width: 100vw;
@@ -107,8 +107,8 @@ body {
     padding: .5rem;
 }
 .ui .__controls .__logo img {
-    height: 1px;
-    width: 1px;
+    width: 100%;
+    height: auto;
 }
 
 .ui .__clip-path {
@@ -157,6 +157,7 @@ body {
 
 .ui .__meta .__character {
     text-align: center;
+    flex-shrink: 1;
 }
 .ui .__meta .__character .__character-name .__title {
     text-transform: uppercase;

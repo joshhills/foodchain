@@ -423,7 +423,8 @@ function checkLegalClaim(player, tile, turn, map) {
     }
     
     // Already fully claimed.
-    if(getNumberOfClaimsOnTileInTurn(player['id'], turn, tile) + tile['fortifications'] >= CONFIG.MAX_CLAIMS) {
+    if((tile['owner']['id'] == player['id'] && getNumberOfClaimsOnTileInTurn(player['id'], turn, tile) + tile['fortifications'] >= CONFIG.MAX_CLAIMS) ||
+      (tile['owner']['id'] != player['id'] && getNumberOfClaimsOnTileInTurn(player['id'], turn, tile) >= CONFIG.MAX_CLAIMS)) {
         console.log('Already fully claimed.');
         return false;
     }

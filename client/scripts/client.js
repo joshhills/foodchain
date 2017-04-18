@@ -367,7 +367,7 @@ function drawTileClaim(t, c, l) {
         // Convert grid data to discrete format.
         var center = hex_to_pixel(l, t.hex);
         // Is it out of view? If so, don't draw it.
-        if(!pointInView(center)) {
+        if(!pointInView(center, size.x / 2)) {
             return false;
         }
         
@@ -378,6 +378,8 @@ function drawTileClaim(t, c, l) {
     
         cGraphic.appendChild(cPolygon);
     }
+    
+    console.log('hmm');
     
     // Add the elements to the DOM.
     c.appendChild(cGraphic);

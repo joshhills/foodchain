@@ -85,7 +85,7 @@ body {
     position: absolute;
     top: 30px; left: 0; bottom: 0; right: 0;
     font-weight: bolder;
-    font-size: 1.5rem;
+    font-size: 1.25rem;
     text-align: center;
 }
 .ui .__controls .__controls-panel .__timer.control img {
@@ -94,13 +94,6 @@ body {
     position: relative;
     left: -20%;
     top: -25%;
-}
-.ui .__controls .__controls-panel .__spectators.control img {
-    width: 120%;
-    height: 125%;
-    position: relative;
-    left: -10%;
-    top: -10%; 
 }
 .ui .__controls .__logo {
     flex-grow: 1;
@@ -159,6 +152,7 @@ body {
     position: relative;
     text-align: center;
     flex-shrink: 1;
+    flex-basis: 100vh;
 }
 .ui .__meta .__character .__character-name .__title {
     text-transform: uppercase;
@@ -178,7 +172,7 @@ body {
     position: absolute; 
     left: 0; 
     right: 0;
-    top: 2rem;
+    top: 3rem;
     margin-left: auto; 
     margin-right: auto; 
 }

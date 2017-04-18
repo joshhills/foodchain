@@ -96,12 +96,13 @@ body {
     top: -25%;
 }
 .ui .__controls .__logo {
+    height: calc(20vh - 1.5rem);
     flex-grow: 1;
     padding: .5rem;
 }
 .ui .__controls .__logo img {
     width: 100%;
-    height: auto;
+    height: 100%;;
 }
 
 .ui .__clip-path {
@@ -109,6 +110,7 @@ body {
     background-color: #fff;
     border-radius: 10px;
     opacity: 0.2;
+    pointer-events: none;
 }
 
 .ui .__meta {
@@ -152,7 +154,7 @@ body {
     position: relative;
     text-align: center;
     flex-shrink: 1;
-    flex-basis: 100vh;
+    flex-basis: 30vh;
 }
 .ui .__meta .__character .__character-name .__title {
     text-transform: uppercase;

@@ -129,11 +129,12 @@ body {
     fill: #b42206;
     font-weight: bold;
 }
-.ui .__meta .__scoreboard .listing.character-viper {
-    color: #3bbe31;
-    fill: #3bbe31;
+.ui .__meta .__scoreboard .listing.character-rhino {
+    color: #4d22c9;
+    fill: #4d22c9;
     font-weight: bold;
 }
+
 .ui .__meta .__scoreboard .listing svg {
     width: .9rem;
 }
@@ -171,6 +172,11 @@ body {
 body.character-redpanda .panel {
     background-color: #b42206;
     border: 5px solid #4c1414;
+    border-radius: 10px;
+}
+body.character-rhino .panel {
+    background-color: #4d22c9;
+    border: 5px solid #4d1154;
     border-radius: 10px;
 }
 

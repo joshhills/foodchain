@@ -236,11 +236,11 @@ function drawBackground(b, l) {
     }
 }
 
-function pointInView(point) {
-    return  (point.x >= 0 &&
-            point.x <= window.innerWidth &&
-            point.y >= 0 &&
-            point.y <= window.innerHeight);
+function pointInView(point, clearance) {
+    return  (point.x + clearance >= 0 &&
+            point.x - clearance <= window.innerWidth &&
+            point.y + clearance >= 0 &&
+            point.y - clearance <= window.innerHeight);
 }
 
 /**
@@ -310,7 +310,7 @@ function drawTile(t, c, l, isBackground) {
         var center = hex_to_pixel(l, t.hex);
         
         // Is it out of view? If so, don't draw it.
-        if(!pointInView(center)) {
+        if(!pointInView(center, size.x / 2)) {
             return false;
         }
         
@@ -413,7 +413,7 @@ function displayClaimFailure(tile) {
 
 function displayPlayer(player) {
     activePlayer = player;
-    document.body.className += ' character-' + player.character.class;
+    document.body.className = 'character-' + player.character.class;
     characterPotrait.src = 'client/images/characters/character-' + player.character.class + '.svg';
     characterName.innerHTML = player.character.name;
 }

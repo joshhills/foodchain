@@ -218,6 +218,7 @@ body .tile.character-rhino.owned > * {
 
 /* Unrefactored */
 
+/*
 .tile.claimed {
     transform-origin:50% 50%;
     transform: scale(1.1);
@@ -231,4 +232,4 @@ body .tile.character-rhino.owned > * {
 	0% { transform: scale(1.1); }
 	50% { transform: scale(1.20); }
 	0% { transform: scale(1.1); }
-}
+}*/

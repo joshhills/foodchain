@@ -286,7 +286,7 @@ function drawTile(t, c, l, isBackground) {
     // Set the class(es) appropriately.
     var classString = 'tile ' + t.type;
     if(t.claims) {
-        classString += ' ' + activePlayer.character.name + ' claimed';
+        classString += ' ' + activePlayer.character.class + ' claimed';
     }
     else if(t.type == TILE_TYPES.OWNED) {
         classString += ' ' + t.owner.character.name;
@@ -354,7 +354,7 @@ function drawTileClaim(t, c, l) {
     cGraphic.setAttribute('id', 'c' + computeHexHashCode(t.hex));
 
     // Set the class(es) appropriately.
-    var classString = 'tile ' + t.type + ' ' + activePlayer.character.name + ' claimed';
+    var classString = 'tile ' + t.type + ' ' + activePlayer.character.class + ' claimed';
     
     cGraphic.setAttribute('class', classString);
     

@@ -46,6 +46,7 @@ body {
     width: calc(100vw - 3rem);
     height: calc(100vh - 3rem);
     display: flex;
+    overflow: hidden;
 }
 .ui .__controls {
     max-width: 9vw;

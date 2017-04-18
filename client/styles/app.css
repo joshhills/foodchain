@@ -156,6 +156,7 @@ body {
 }
 
 .ui .__meta .__character {
+    position: relative;
     text-align: center;
     flex-shrink: 1;
 }
@@ -174,8 +175,13 @@ body {
 }
 .ui .__meta .__character .__character-portrait  {
     width: 85%;
+    position: absolute; 
+    left: 0; 
+    right: 0;
+    top: 2rem;
+    margin-left: auto; 
+    margin-right: auto; 
 }
-
 
 .panel,
 #scoreboard-panel {

@@ -17,13 +17,21 @@ var activePlayer;
 
 const size = new Point(30, 30);
 const sizeGap = new Point(5, 5);
-var origin, layout, map, background, canvas, clipPath, timer, scoreboard, portrait, characterName, gameId, spectators;
+var origin, layout, map, background, canvas, clipPath, timer, scoreboard, characterPotrait, characterName, gameId, spectators;
 
 /* Init Functions */
 
-var map = [
-    {"hex":{"q":-4,"r":0,"s":4},"type":"blocked","owner":{},"claims":0,"fortifications":0},{"hex":{"q":-4,"r":1,"s":3},"type":"blocked","owner":{},"claims":0,"fortifications":0},{"hex":{"q":-4,"r":2,"s":2},"type":"blocked","owner":{},"claims":0,"fortifications":0},{"hex":{"q":-4,"r":3,"s":1},"type":"blocked","owner":{},"claims":0,"fortifications":0},{"hex":{"q":-3,"r":-1,"s":4},"type":"blocked","owner":{},"claims":0,"fortifications":0},{"hex":{"q":-3,"r":0,"s":3},"type":"free","owner":{},"claims":0,"fortifications":0},{"hex":{"q":-3,"r":1,"s":2},"type":"free","owner":{},"claims":0,"fortifications":0},{"hex":{"q":-3,"r":2,"s":1},"type":"free","owner":{},"claims":0,"fortifications":0},{"hex":{"q":-3,"r":3,"s":0},"type":"blocked","owner":{},"claims":0,"fortifications":0},{"hex":{"q":-2,"r":-2,"s":4},"type":"blocked","owner":{},"claims":0,"fortifications":0},{"hex":{"q":-2,"r":-1,"s":3},"type":"free","owner":{},"claims":0,"fortifications":0},{"hex":{"q":-2,"r":0,"s":2},"type":"free","owner":{},"claims":0,"fortifications":0},{"hex":{"q":-2,"r":1,"s":1},"type":"free","owner":{},"claims":0,"fortifications":0},{"hex":{"q":-2,"r":2,"s":0},"type":"free","owner":{},"claims":0,"fortifications":0},{"hex":{"q":-2,"r":3,"s":-1},"type":"blocked","owner":{},"claims":0,"fortifications":0},{"hex":{"q":-1,"r":-3,"s":4},"type":"blocked","owner":{},"claims":0,"fortifications":0},{"hex":{"q":-1,"r":-2,"s":3},"type":"spawn","owner":{},"claims":0,"fortifications":0},{"hex":{"q":-1,"r":-1,"s":2},"type":"free","owner":{},"claims":0,"fortifications":0},{"hex":{"q":-1,"r":0,"s":1},"type":"free","owner":{},"claims":0,"fortifications":0},{"hex":{"q":-1,"r":1,"s":0},"type":"free","owner":{},"claims":0,"fortifications":0},{"hex":{"q":-1,"r":2,"s":-1},"type":"spawn","owner":{},"claims":0,"fortifications":0},{"hex":{"q":-1,"r":3,"s":-2},"type":"blocked","owner":{},"claims":0,"fortifications":0},{"hex":{"q":0,"r":-3,"s":3},"type":"blocked","owner":{},"claims":0,"fortifications":0},{"hex":{"q":0,"r":-2,"s":2},"type":"free","owner":{},"claims":0,"fortifications":0},{"hex":{"q":0,"r":-1,"s":1},"type":"free","owner":{},"claims":0,"fortifications":0},{"hex":{"q":0,"r":0,"s":0},"type":"free","owner":{},"claims":0,"fortifications":0},{"hex":{"q":0,"r":1,"s":-1},"type":"free","owner":{},"claims":0,"fortifications":0},{"hex":{"q":0,"r":2,"s":-2},"type":"blocked","owner":{},"claims":0,"fortifications":0},{"hex":{"q":1,"r":-3,"s":2},"type":"blocked","owner":{},"claims":0,"fortifications":0},{"hex":{"q":1,"r":-2,"s":1},"type":"free","owner":{},"claims":0,"fortifications":0},{"hex":{"q":1,"r":-1,"s":0},"type":"free","owner":{},"claims":0,"fortifications":0},{"hex":{"q":1,"r":0,"s":-1},"type":"free","owner":{},"claims":0,"fortifications":0},{"hex":{"q":1,"r":1,"s":-2},"type":"blocked","owner":{},"claims":0,"fortifications":0},{"hex":{"q":2,"r":-3,"s":1},"type":"blocked","owner":{},"claims":0,"fortifications":0},{"hex":{"q":2,"r":-2,"s":0},"type":"blocked","owner":{},"claims":0,"fortifications":0},{"hex":{"q":2,"r":-1,"s":-1},"type":"blocked","owner":{},"claims":0,"fortifications":0},{"hex":{"q":2,"r":0,"s":-2},"type":"blocked","owner":{},"claims":0,"fortifications":0}
-];
+if (!String.format) {
+  String.format = function(format) {
+    var args = Array.prototype.slice.call(arguments, 1);
+    return format.replace(/{(\d+)}/g, function(match, number) { 
+      return typeof args[number] != 'undefined'
+        ? args[number] 
+        : match
+      ;
+    });
+  };
+}
 
 /**
  * Compute the center point from which the map
@@ -44,7 +52,7 @@ function retrieveDisplayElements() {
     clipPath = document.getElementById('clip-path');
     timer = document.getElementById('timer');
     scoreboard = document.getElementById('scoreboard');
-    portrait = document.getElementById('portrait');
+    portrait = document.getElementById('character-portrait');
     characterName = document.getElementById('character-name');
     spectators = document.getElementById('spectators');
 }
@@ -108,11 +116,9 @@ function init() {
     addEventListeners();
     initLibraryPrerequisites();
     
-    // Game Logic
     drawBackground(background, layout);
-    drawMap(map, canvas, layout);
     
-    // initSockets();
+    initSockets();
 }
 
 /* Utility Functions */
@@ -389,7 +395,8 @@ function displayClaimFailure(tile) {
 
 function displayPlayer(player) {
     activePlayer = player;
-    portrait.className += ' ' + player.character.name;
+    document.body.className += ' character-' + player.character.class;
+    characterPotrait.src = 'client/images/characters/character-' + player.character.class + '.svg';
     characterName.innerHTML = player.character.name;
 }
 
@@ -404,11 +411,12 @@ function displayPlayers(data) {
     players.sort(comparePlayers);
     
     // TODO: There's probably a nicer way...
-    var template = "";
+    var template = '<tr class=\"listing character-{0}\"><td><svg xmlns=\"http:\/\/www.w3.org\/2000\/svg\"><polygon points=\"24.25 0 8.08 0 0 14 8.08 28 24.25 28 32.33 14 24.25 0\"\/><\/svg><\/td><td>{1}s<\/td><\/tr><tr><td><\/td><td><span id=\"{3}-territory\" class=\"text-percentage\">30<\/span> Board<\/td><td><span id=\"{3}-status-used\">0<\/span>\/<span id=\"{0}-status-max\">3<\/span><\/td><\/tr>';
+    var scoreboardHTML = '';
     for(var i = 0; i < players.length; i++) {
         var player = players[i];
         // TODO: Status.
-        template += "<tr id=\"" + player.id + "\" class=\"__listing\"><td class=\"__name\"><span id=\"" + player.id + "-name\">" + player.character.name + "<\/span><\/td><td class=\"__board-coverage\"><span id=\"" + player.id + "-territory\" class=\"text-percentage\">" + Math.round(player.territory) + "<\/span><\/td><td class=\"__turn-status\"><span id=\"" + player.id + "-status-used\">0</span> / <span id=\"" + player.id + "-status-max\">" + player.moves + "<\/span><\/td><\/tr>";   
+        scoreboardHTML += String.format(template, player.character.class, player.character.name, player.id);   
     }
     scoreboard.innerHTML = template;
 }

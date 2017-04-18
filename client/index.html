@@ -9,7 +9,7 @@
         <link href="styles/app.css" rel="stylesheet" />
         <!-- Scripts -->
 	</head>
-	<body class="character-redpanda">
+	<body>
         <!-- Wrapper -->
         <div class="wrapper">
             <!-- Interactable Game Area -->
@@ -61,46 +61,7 @@
                             Scoreboard
                         </p>
                         <!-- Listings -->
-                        <table id="scoreboard">
-                            <!-- Listing -->
-                            <tr class="listing character-redpanda">
-                                <td>
-                                    <svg xmlns="http://www.w3.org/2000/svg" id="Layer_1" data-name="Layer 1" viewBox="0 0 32.33 28"><title>icon-hexagon</title><polygon points="24.25 0 8.08 0 0 14 8.08 28 24.25 28 32.33 14 24.25 0"/></svg>
-                                </td>
-                                <td>
-                                    Red Pandas
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                </td>
-                                <td>
-                                    <span class="text-percentage">30</span> Board
-                                </td>
-                                <td>
-                                    0/3
-                                </td>
-                            </tr>
-                            <!-- Listing -->
-                            <tr class="listing character-viper lost">
-                                <td>
-                                    <svg xmlns="http://www.w3.org/2000/svg" id="Layer_1" data-name="Layer 1" viewBox="0 0 32.33 28"><title>icon-hexagon</title><polygon points="24.25 0 8.08 0 0 14 8.08 28 24.25 28 32.33 14 24.25 0"/></svg>
-                                </td>
-                                <td>
-                                    Vipers
-                                </td>
-                            </tr>
-                            <tr class="listing lost">
-                                <td>
-                                </td>
-                                <td>
-                                    <span class="text-percentage">30</span> Board
-                                </td>
-                                <td>
-                                    3/3
-                                </td>
-                            </tr>
-                        </table>
+                        <table id="scoreboard"></table>
                     </div>
                     <!-- Character -->
                     <div class="__character panel">
@@ -108,7 +69,7 @@
                             <p id="character-name" class="__title">Red Panda</p>
                             <img src="images/icons/icon-information.svg" alt="Information about this character..." id="character-information" class="__information" />
                         </div>
-                        <img class="__character-portrait" src="images/characters/character-redpanda.svg" alt="Red Panda" />
+                        <img id="character-portrait" class="__character-portrait" src="" />
                     </div>
                 </div>
             </div>

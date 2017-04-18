@@ -110,7 +110,6 @@ body {
     background-color: #fff;
     border-radius: 10px;
     opacity: 0.2;
-    pointer-events: none;
 }
 
 .ui .__meta {
@@ -154,7 +153,8 @@ body {
     position: relative;
     text-align: center;
     flex-shrink: 1;
-    flex-basis: 50vh;
+    flex-basis: 40vh;
+    overflow: hidden;
 }
 .ui .__meta .__character .__character-name .__title {
     text-transform: uppercase;

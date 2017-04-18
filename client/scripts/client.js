@@ -22,6 +22,7 @@ var origin, layout, map, background, canvas, clipPath, timer, scoreboard, charac
 /* Init Functions */
 
 if (!String.format) {
+    console.log('hmm');
   String.format = function(format) {
     var args = Array.prototype.slice.call(arguments, 1);
     return format.replace(/{(\d+)}/g, function(match, number) { 

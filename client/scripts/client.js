@@ -432,7 +432,7 @@ function displaySpectator() {
     // TODO: Spectator portrait
     characterName.innerHTML = activePlayer;
     document.body.className = 'spectator';
-    characterPotrait.src = 'client/images/characters/spectator';
+    characterPotrait.src = 'client/images/characters/spectator.svg';
 }
 
 function displayPlayers(data) {

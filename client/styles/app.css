@@ -162,6 +162,9 @@ body {
     display: inline-block;
     color: #fff;
 }
+body.spectator .ui .__meta .__character .__character-name .__title {
+    color: #000;
+}
 .ui .__meta .__character .__character-name .__information {
     height: 1.5rem;
     position: relative;

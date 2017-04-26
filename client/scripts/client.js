@@ -443,7 +443,7 @@ function displayPlayers(data) {
     var template = '<tr class=\"listing character-{0}\"><td><svg xmlns="http://www.w3.org/2000/svg" id="Layer_1" data-name="Layer 1" viewBox="0 0 32.33 28"><title>icon-hexagon</title><polygon points="24.25 0 8.08 0 0 14 8.08 28 24.25 28 32.33 14 24.25 0"/></svg><\/td><td>{1}s<\/td><\/tr><tr><td><\/td><td><span id=\"{2}-territory\" class=\"text-percentage\">{3}<\/span> Board<\/td><td><span id=\"{2}-status-used\">0<\/span>\/<span id=\"{2}-status-max\">{4}<\/span><\/td><\/tr>';
     var scoreboardHTML = '';
     for(var player of players) {
-        scoreboardHTML += String.format(template, player.character.class, player.character.name, player.id, player.territory, player.moves);   
+        scoreboardHTML += String.format(template, player.character.class, player.character.name, player.id, Math.floor(player.territory), player.moves);   
     }
     scoreboard.innerHTML = scoreboardHTML;
 }

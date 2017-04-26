@@ -206,7 +206,7 @@ table {
 /* Games */
 
 body.spectator .tile {
-    stroke: #444;
+    stroke: #222;
     stroke-width: 5px;
 }
 

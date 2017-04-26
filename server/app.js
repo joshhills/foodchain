@@ -1079,6 +1079,8 @@ function removePlayerFromGame(socket) {
 }
 
 function removeSpectatorFromGame(socket) {
+    console.log('Trying to remove a spectator from the game, this is what games looks like:');
+    console.log(games);
     var game = findGameBySocket(socket, games);
     var spectator = findPlayerBySocket(socket, game, true);
     for(var s in game['spectatorSockets']) {

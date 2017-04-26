@@ -312,15 +312,17 @@ function findGameBySocket(socket, games) {
 }
 
 function findPlayerBySocket(socket, game, spectatorsToo) {
-    for(var player of game['players']) {
-        if(player['id'] == socket['id']) {
-            return player;
+    if(game != null) {
+        for(var player of game['players']) {
+            if(player['id'] == socket['id']) {
+                return player;
+            }
         }
-    }
-    if(spectatorsToo) {
-        for(var spectator of game['spectatorSockets']) {
-            if(socket['id'] == spectator['id']) {
-                return spectator;
+        if(spectatorsToo) {
+            for(var spectator of game['spectatorSockets']) {
+                if(socket['id'] == spectator['id']) {
+                    return spectator;
+                }
             }
         }
     }
@@ -1079,13 +1081,13 @@ function removePlayerFromGame(socket) {
 }
 
 function removeSpectatorFromGame(socket) {
-    console.log('Trying to remove a spectator from the game, this is what games looks like:');
-    console.log(games);
     var game = findGameBySocket(socket, games);
-    var spectator = findPlayerBySocket(socket, game, true);
-    for(var s in game['spectatorSockets']) {
-        if(game['spectatorSockets'][s]['id'] == spectator['id']) {
-            game['spectatorSockets'].splice(s, 1);
+    if(game != null) {
+        var spectator = findPlayerBySocket(socket, game, true);
+        for(var s in game['spectatorSockets']) {
+            if(game['spectatorSockets'][s]['id'] == spectator['id']) {
+                game['spectatorSockets'].splice(s, 1);
+            }
         }
     }
 }

@@ -788,6 +788,7 @@ function cycleGameTurn(game) {
                 }
             }
 
+            // TODO: Factor in fortifications.
             // Erase smaller subsets.
             for(var player of game['players']) {
                 var playerTerritory = getPlayerTerritory(player['id'], game['map']);
@@ -815,6 +816,7 @@ function cycleGameTurn(game) {
                         if(!found) {
                             tile['owner'] = {};
                             tile['type'] = TILE_TYPES.FREE;
+                            tile['fortifications'] = 0;
                         }
                     }
                 }

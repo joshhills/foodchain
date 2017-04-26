@@ -383,8 +383,6 @@ function drawTileClaim(t, c, l) {
         cGraphic.appendChild(cPolygon);
     }
     
-    console.log('hmm');
-    
     // Add the elements to the DOM.
     c.appendChild(cGraphic);
 }

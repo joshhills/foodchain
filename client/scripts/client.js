@@ -428,9 +428,11 @@ function displayPlayer(player) {
 }
 
 function displaySpectator() {
-    activePlayer = 'Spectator';
+    activePlayer = 'spectator';
     // TODO: Spectator portrait
     characterName.innerHTML = activePlayer;
+    document.body.className = 'spectator';
+    characterPotrait.src = 'client/images/characters/spectator';
 }
 
 function displayPlayers(data) {

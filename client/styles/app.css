@@ -202,6 +202,11 @@ table {
 
 /* Games */
 
+body.spectator .tile {
+    stroke: #444;
+    stroke-width: 5px;
+}
+
 body.character-redpanda .tile {
     stroke: #4c1414;
     stroke-width: 5px;

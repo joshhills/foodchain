@@ -1151,8 +1151,26 @@ function attemptMatch() {
             seeking.push(player);
         }
     }
-    for(var i in seeking) {
-        console.log(i);
+    for(var i = 0; i < seeking.length - 1; i += 2) {
+        console.log('Matching two players together');
+        // Get a game ID.
+        var gameId = generateGameId();
+
+        // Create game.
+        var game = createGame(gameId, seeking.length);
+
+        var players = [
+            seeking[i],
+            seeking[i+1]
+        ];
+        // Add players to game.
+        for(var player of players) {
+            joinGame(player['socket'], gameId);
+            removeFromLobby(player['socket']);
+        }
+
+        // Start game.
+        startGame(game);
     }
 }
 

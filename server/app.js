@@ -1106,7 +1106,10 @@ function removeGame(game) {
 function removePlayerFromGame(socket) {
     var game = findGameBySocket(socket, games);
     var player = findPlayerBySocket(socket, game);
-    player['state'] = CONFIG['PLAYER_STATES']['DISCONNECTED'];
+    // May have already been removed.
+    if(player) {
+        player['state'] = CONFIG['PLAYER_STATES']['DISCONNECTED'];
+    }
 }
 
 function removeSpectatorFromGame(socket) {

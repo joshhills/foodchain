@@ -1217,7 +1217,7 @@ function findGameById(gameId) {
 function joinGame(socket, gameId) {
     var game = findGameById(gameId);
     if(game) {
-        if(game['state'] == CONFIG['GAME_STATES']['SETUP']) {
+        if(game['state'] == CONFIG['GAME_STATES']['SETUP'] && game['players'].length < CONFIG['MAX_PLAYERS']) {
             addPlayerToGame(game, socket);
         } else {
             addSpectatorToGame(game, socket);

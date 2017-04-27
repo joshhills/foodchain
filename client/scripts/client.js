@@ -164,7 +164,8 @@ function playQuick() {
 }
 
 function playPrivate() {
-    
+    socket.emit('playPrivate');
+    displayGame();
 }
 
 function joinGame() {
@@ -462,6 +463,8 @@ function displayGameFull() {
 }
 
 function displayTimer(time) {
+    // TODO: Hmm...
+    pregame.style.visibility = "hidden";
     // TODO: New on.
     if(time == 10) {
         claims = [];

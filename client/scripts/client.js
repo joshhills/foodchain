@@ -126,6 +126,7 @@ function initSockets() {
     
     // Game
     socket.on('start', displayStart);
+    socket.on('ready', displayReady);
     socket.on('gameId', displayGameId);
     socket.on('joinSuccess', displayGame);
     socket.on('full', displayGameFull);
@@ -502,7 +503,7 @@ function displayPlayer(player) {
 
 function displaySpectator() {
     activePlayer = 'spectator';
-    // TODO: Spectator portrait
+    readyButton.style.visibility = "hidden";
     characterName.innerHTML = activePlayer;
     document.body.className = 'spectator';
     characterPotrait.src = 'client/images/characters/spectator.svg';

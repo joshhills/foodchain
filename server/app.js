@@ -585,10 +585,6 @@ function computeTileChanges(turn, map) {
                 } else if(tile['type'] == TILE_TYPES.OWNED) {
                     tile['fortifications'] -= numForeignClaims;
                 }
-                
-                if(tile['fortifications'] < 0) {
-                    console.log('shit');
-                }
 
             }
         }
@@ -970,6 +966,12 @@ function cycleGameTurn(game) {
 function startGame(game) {
     console.log('Starting a game');
     
+    // If there is no map yet.
+    if(game['map'] == []) {
+        console.log('Assigning a map.');
+        game['map'] = getMap(game['players'].length);
+    }
+    
     // Apply spawns.
     var playersToAssign = game['players'].slice();
     for(var tile of game['map']['tiles']) {
@@ -1255,8 +1257,6 @@ function handleReady(socket) {
     console.log('Player trying to ready up...');
     var game = findGameBySocket(socket, games);
     var player = findPlayerBySocket(socket, game);
-    console.log(game['id']);
-    console.log(player);
     if(game && player && game['state'] == CONFIG['GAME_STATES']['SETUP']) {
         // Register player as ready.
         player['ready'] = true;

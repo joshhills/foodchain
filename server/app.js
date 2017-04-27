@@ -1251,6 +1251,7 @@ function checkAllReady(game) {
 }
 
 function handleReady(socket) {
+    console.log('Player trying to ready up...');
     var game = findGameBySocket(socket, games);
     var player = findPlayerBySocket(socket, player);
     if(game && player && game['state'] == CONFIG['GAME_STATES']['SETUP']) {

@@ -561,6 +561,7 @@ function displayStart() {
 }
 
 function displayReady(numReady) {
+    console.log('Received ' + numReady);
     numReady.innerHTML = numReady;
 }
 

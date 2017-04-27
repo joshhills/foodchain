@@ -1248,7 +1248,7 @@ function checkAllReady(game) {
         }
     }
     sendToAllPlayersOfGame(game, 'ready', readyCount, true);
-    if(allReady) {
+    if(allReady && game['players'].length > 1) {
         startGame(game);
     }
 }
@@ -1260,9 +1260,7 @@ function handleReady(socket) {
     if(game && player && game['state'] == CONFIG['GAME_STATES']['SETUP']) {
         // Register player as ready.
         player['ready'] = true;
-        if(game['players'].length > 1) {
-            checkAllReady(game);
-        }
+        checkAllReady(game);
     }
 }
 

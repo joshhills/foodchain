@@ -2,10 +2,17 @@
     {
         "name": "Red Panda",
         "class": "redpanda"
-        
     },
     {
         "name": "Rhino",
         "class": "rhino"
+    },
+    {
+        "name": "Leopard",
+        "class": "leopard"
+    },
+    {
+        "name": "Snake",
+        "class": "Snake"
     }
 ]

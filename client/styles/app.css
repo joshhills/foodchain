@@ -271,6 +271,16 @@ body {
     fill: #4d22c9;
     font-weight: bold;
 }
+.game-ui .__meta .__scoreboard .listing.character-leopard {
+    color: #c1b41a;
+    fill: #c1b41a;
+    font-weight: bold;
+}
+.game-ui .__meta .__scoreboard .listing.character-snake {
+    color: #148d19;
+    fill: #148d19;
+    font-weight: bold; 
+}
 
 .game-ui .__meta .__scoreboard .listing.disconnected {
     opacity: 0.3;
@@ -332,6 +342,16 @@ body.character-rhino .panel {
     border: 5px solid #4d1154;
     border-radius: 10px;
 }
+body.character-leopard .panel {
+    background-color: #c1b41a;
+    border: 5px solid #c1b41a;
+    border-radius: 10px;   
+}
+body.character-snake .panel {
+    background-color: #148d19;
+    border: 5px solid #148d19;
+    border-radius: 10px;   
+}
 
 table {
     width: 100%;
@@ -364,6 +384,26 @@ body.character-rhino .tile {
 body .tile.character-rhino.claimed > *,
 body .tile.character-rhino.owned > * {
     fill: #4d22c9;
+    fill-opacity: 0.33;
+}
+
+body.character-leopard .tile {
+    stroke: #8d600b;
+    stroke-width: 5px;
+}
+body .tile.character-leopard.claimed > *,
+body .tile.character-leopard.owned > * {
+    fill: #d3c41c;
+    fill-opacity: 0.33;
+}
+
+body.character-snake .tile {
+    stroke: #1a620c;
+    stroke-width: 5px;
+}
+body .tile.character-snake.claimed > *,
+body .tile.character-snake.owned > * {
+    fill: #2fc31c;
     fill-opacity: 0.33;
 }
 

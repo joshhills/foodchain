@@ -978,7 +978,7 @@ function startGame(game) {
         if(tile['type'] == TILE_TYPES.SPAWN) {
             tile['type'] = TILE_TYPES.OWNED;
             tile['owner'] = playersToAssign.shift();
-            tile['fortifications'] = 1;
+            tile['fortifications'] = 3;
         }
     }
     

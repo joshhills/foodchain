@@ -1247,7 +1247,6 @@ function checkAllReady(game) {
             readyCount++;
         }
     }
-    console.log('Sending ' + readyCount);
     sendToAllPlayersOfGame(game, 'ready', readyCount, true);
     if(allReady && game['players'].length > 1) {
         startGame(game);

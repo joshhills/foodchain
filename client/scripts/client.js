@@ -560,9 +560,8 @@ function displayStart() {
     pregame.style.visibility = "hidden";
 }
 
-function displayReady(numReady) {
-    console.log('Received ' + numReady);
-    numReady.innerHTML = numReady;
+function displayReady(numberReady) {
+    numReady.innerHTML = numberReady;
 }
 
 init();

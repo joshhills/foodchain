@@ -20,7 +20,7 @@ var inGameView = false;
 
 const size = new Point(30, 30);
 const sizeGap = new Point(10, 10);
-var origin, layout, map, stage, background, canvas, clipPath, timer, scoreboard, characterPotrait, characterName, gameId, fighting, waiting, tilesClaimed, spectators, menuUI, gameUI, code;
+var origin, layout, map, stage, background, canvas, clipPath, timer, scoreboard, characterPotrait, characterName, gameId, fighting, waiting, tilesClaimed, spectators, menuUI, gameUI, code, pregame;
 
 /* Init Functions */
 
@@ -66,7 +66,7 @@ function retrieveDisplayElements() {
     tilesClaimed = document.getElementById('tiles-claimed');
     code = document.getElementById('code');
     gameCode = document.getElementById('game-code');
-    hidden = document.getElementById('pregame');
+    pregame = document.getElementById('pregame');
 }
 
 /**
@@ -548,12 +548,12 @@ function displayTilesClaimed(numTilesClaimed) {
 }
 
 function displayGameId(gameId) {
+    displayGame();
     gameCode.innerHTML = gameId;
 }
 
 function displayStart() {
     pregame.style.visibility = "hidden";
-    displayGame();
 }
 
 init();

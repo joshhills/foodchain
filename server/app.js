@@ -1186,7 +1186,7 @@ function removeFromLobby(socketId) {
     for(var i in lobby) {
         if(lobby[i]['socket']['id'] == socketId) {
             lobby.splice(i, 1);
-            return;
+            break;
         }
     }
     // Emit number.

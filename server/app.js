@@ -1231,22 +1231,53 @@ function joinGame(socket, gameId) {
     }
 }
 
+function checkAllReady(game) {
+    var readyCount = 0;
+    var allReady = true;
+    for(var player of game['players']) {
+        if(!player['ready']) {
+            allReady = false;
+        } else {
+            var readyCount++;
+        }
+    }
+    sendToAllPlayersOfGame(game, 'ready', readyCount, true);
+    if(allReady) {
+        startGame(game);
+    }
+}
+
+function handleReady(socket) {
+    var game = findGameBySocket(socket, games);
+    var player = findPlayerBySocket(socket, player);
+    if(game && player && game['state'] == CONFIG['GAME_STATES']['SETUP']) {
+        // Register player as ready.
+        player['ready'] = true;
+        if(game['players'].length > 1) {
+            checkAllReady(game);
+        }
+    }
+}
+
 /* Sockets Registry */
 
 function registerGameListeners(game, socket) {
     socket.on('claim', function(data) {
-            handleClaim(socket, data)
-        });
+        handleClaim(socket, data)
+    });
     socket.on('disconnect', function() {
         removePlayerFromGame(socket);
         sendToAllPlayersOfGame(game, 'disconnected', socket['id'], true);
+    });
+    socket.on('ready', function() {
+        handleReady(socket);
     });
 }
 
 // Handle initial connection.
 io.on('connection', function (socket) {
     // Get the game ID requested.
-    gameId = socket.handshake.query.gameId;
+    var gameId = socket.handshake.query.gameId;
 
     // Add to lobby.
     if(!gameId) {
@@ -1269,19 +1300,15 @@ io.on('connection', function (socket) {
         // Find the right game.
         var found = joinGame(socket, gameId);
         
+        // Create one if it does not exist.
         if(!found) {
-            game = createGame(gameId);
+            var game = createGame(gameId);
             addPlayerToGame(game, socket);
+            registerGameListeners(game, socket);
         }
 
-//        // If there are enough players to fulfill the map requirements...
-//        if(game['players'].length == game['map']['players']) {
-//            // Set the game to be in progress.
-//            startGame(game);
-//        }
-
-        // Register game listeners.
-        registerGameListeners(game, socket);
+        // By this point, in a game, emit its ID to allow others to join.
+        socket.emit('gameId', gameId);
     }
 });
 

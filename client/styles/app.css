@@ -215,8 +215,13 @@ body {
 .menu-ui .__intro {
     flex-grow: 1;
 }
-.game-ui .__clip-path {
+.game-ui .__middle {
     flex-grow: 1;
+}
+.game-ui .__middle .__clip-path {
+    
+}
+.game-ui .__middle .__clip-path {
     background-color: #fff;
     border-radius: 10px;
     opacity: 0.2;

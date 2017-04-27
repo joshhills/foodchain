@@ -25,6 +25,7 @@ body {
     position: relative;
 }
 
+.game-ui .__middle .__pregame button,
 .button-group button {
     padding: .5rem;
     background: none;
@@ -36,11 +37,13 @@ body {
     position: relative;
     margin: 1rem 0 1rem 0;
 }
+.game-ui .__middle .__pregame button,
 .__intro .__intro-panel .__code button:hover,
 .button-group button:hover {
     color: #666;
     border-color: #666;
 }
+.game-ui .__middle .__pregame button,
 .__intro .__intro-panel .__code button:focus,
 .button-group button:focus {
     outline: none;
@@ -217,14 +220,23 @@ body {
 }
 .game-ui .__middle {
     flex-grow: 1;
+    position: relative;
 }
-.game-ui .__middle .__clip-path {
-    
+.game-ui .__middle .__pregame {
+    padding: 1rem;
+    position: absolute;
+    height: 100%;
+    width: 100%;
 }
+.game-ui .__middle .__pregame h1 {
+    margin-top: 0;
+}
+
 .game-ui .__middle .__clip-path {
     background-color: #fff;
     border-radius: 10px;
     opacity: 0.2;
+    height: 100%;
 }
 
 .menu-ui .__meta,

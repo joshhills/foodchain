@@ -20,7 +20,7 @@ var inGameView = false;
 
 const size = new Point(30, 30);
 const sizeGap = new Point(10, 10);
-var origin, layout, map, stage, background, canvas, clipPath, timer, scoreboard, characterPotrait, characterName, gameId, fighting, waiting, tilesClaimed, spectators, menuUI, gameUI, code, pregame, numReady, ready;
+var origin, layout, map, stage, background, canvas, clipPath, timer, scoreboard, characterPotrait, characterName, gameId, fighting, waiting, tilesClaimed, spectators, menuUI, gameUI, code, pregame, numReady, readyButton;
 
 /* Init Functions */
 
@@ -68,7 +68,7 @@ function retrieveDisplayElements() {
     gameCode = document.getElementById('game-code');
     pregame = document.getElementById('pregame');
     numReady = document.getElementById('num-ready');
-    ready = document.getElementById('ready');
+    readyButton = document.getElementById('ready');
 }
 
 /**
@@ -175,7 +175,7 @@ function joinGame() {
 
 function ready() {
     socket.emit('ready');
-    ready.style.visibility = "hidden";
+    readyButton.style.visibility = "hidden";
 }
 
 /* Utility Functions */

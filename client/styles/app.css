@@ -1,7 +1,11 @@
 @import url('https://fonts.googleapis.com/css?family=Quicksand');
 
 /* UI */
-z`
+
+.none {
+    display: none !important;
+}
+
 html {
     height: 100vh;
     width: 100vw;
@@ -14,6 +18,84 @@ body {
     height: 100vh;
     width: 100vw;
     overflow: hidden;
+}
+
+.input-group {
+    display: inline;
+    position: relative;
+}
+
+.button-group button {
+    padding: .5rem;
+    background: none;
+    border: 3px solid black;
+    border-radius: 5px;
+    font-family: 'Quicksand', sans-serif;
+    font-size: 1.5rem;
+    color: #000;
+    position: relative;
+    margin: 1rem 0 1rem 0;
+}
+.__intro .__intro-panel .__code button:hover,
+.button-group button:hover {
+    color: #666;
+    border-color: #666;
+}
+.__intro .__intro-panel .__code button:focus,
+.button-group button:focus {
+    outline: none;
+}
+.button-group button:active {
+    top: 2px;
+}
+.button-group span {
+    margin: 0 1rem 0 1rem;
+    font-size: 1.5rem;
+}
+
+.menu-ui .__meta .__global-stats img {
+    width: 90%;
+    margin-right: 10%;
+}
+.menu-ui .__meta .__global-stats .__header {
+    vertical-align: top;
+    font-size: 1.5rem;
+    font-weight: bolder;
+}
+
+.menu-ui .__meta .__character-cta {
+    background-color: #000;
+    font-size: 1.5rem;
+    text-align: center;
+    padding: 1rem 2rem 1rem 2rem;
+    color: #fff;
+}
+.menu-ui .__meta .__character-cta img {
+    max-width: 40%;
+}
+
+.menu-ui .__intro .__intro-panel .__code p {
+    font-size: 1.5rem;
+    display: inline;
+    margin-right: 1rem;
+}
+.menu-ui .__intro .__intro-panel .__code button,
+.menu-ui .__intro .__intro-panel .__code input {
+    display: inline;
+    padding: .5rem;
+    font-size: 1.5rem;
+    background: #fff;
+    border: 3px solid black;
+    border-radius: 5px;
+    font-family: 'Quicksand', sans-serif;
+}
+.menu-ui .__intro .__intro-panel .__code input:focus {
+    outline: none;
+}
+.menu-ui .__intro .__intro-panel .__code button {
+    width: 3rem;
+    position: relative;
+    right: 10px;
 }
 
 .text-percentage:after {
@@ -46,7 +128,8 @@ body {
     height: 100%;
 }
 
-.ui {
+.menu-ui,
+.game-ui {
     position: absolute;
     top: 0;
     left: 0;
@@ -56,28 +139,50 @@ body {
     display: flex;
     overflow: hidden;
 }
-.ui .__controls {
-    max-width: 9vw;
+
+.menu-ui .__intro .__intro-panel {
+    padding: 1rem;
+}
+.menu-ui .__intro .__intro-panel h1 {
+    margin-top: 0;
+}
+.menu-ui .__intro .__intro-panel p {
+    font-size: 1.25rem;
+}
+
+.menu-ui .__meta .__global-stats {
+    flex-grow: 1;
+    margin-bottom: 1.5rem;
+    padding: .5rem;
+}
+.menu-ui .__meta .__character-cta {
+    flex-grow: 1;
+    padding: .5rem;
+}
+
+.menu-ui .__social,
+.game-ui .__controls {
+    width: 9vw;
     margin-right: 1.5rem;
     display: flex;
     flex-direction: column;
 }
 
-.ui .__controls .__controls-panel {
+.game-ui .__controls .__controls-panel {
     height: calc(80vh - 4.5rem);
     margin-bottom: 1.5rem;
 }
 
-.ui .__controls .__controls-panel .control {
+.game-ui .__controls .__controls-panel .control {
     position: relative;
     padding: .5rem;
     height: calc(25% - 1rem);
 }
-.ui .__controls .__controls-panel .control img {
+.game-ui .__controls .__controls-panel .control img {
     height: 100%;
     width: 100%;
 }
-.ui .__controls .__controls-panel > .control span {
+.game-ui .__controls .__controls-panel > .control span {
     width: 50%;
     height: 50%;
     overflow: auto;
@@ -88,91 +193,97 @@ body {
     font-size: 1.25rem;
     text-align: center;
 }
-.ui .__controls .__controls-panel .__timer.control img {
+.game-ui .__controls .__controls-panel .__timer.control img {
     width: 135%;
     height: 135%;
     position: relative;
     left: -20%;
     top: -25%;
 }
-.ui .__controls .__logo {
+
+.menu-ui .__social .__logo,
+.game-ui .__controls .__logo {
     height: calc(20vh - 1.5rem);
     flex-grow: 1;
     padding: .5rem;
 }
-.ui .__controls .__logo img {
+.game-ui .__controls .__logo img {
     width: 100%;
     height: 100%;;
 }
 
-.ui .__clip-path {
+.menu-ui .__intro {
+    flex-grow: 1;
+}
+.game-ui .__clip-path {
     flex-grow: 1;
     background-color: #fff;
     border-radius: 10px;
     opacity: 0.2;
 }
 
-.ui .__meta {
+.menu-ui .__meta,
+.game-ui .__meta {
     min-width: 20vw;
     margin-left: 1.5rem;
     display: flex;
     flex-direction: column;
 }
 
-.ui .__meta .__scoreboard {
+.game-ui .__meta .__scoreboard {
     flex-grow: 1;
     margin-bottom: 1.5rem;
     padding: .5rem;
 }
-.ui .__meta .__scoreboard .__title{
+.game-ui .__meta .__scoreboard .__title{
     text-transform: uppercase;
     font-weight: bold;
     text-align: center;
     margin-top: 0;
     margin-bottom: .5rem;
 }
-.ui .__meta .__scoreboard .listing.character-redpanda {
+.game-ui .__meta .__scoreboard .listing.character-redpanda {
     color: #b42206;
     fill: #b42206;
     font-weight: bold;
 }
-.ui .__meta .__scoreboard .listing.character-rhino {
+.game-ui .__meta .__scoreboard .listing.character-rhino {
     color: #4d22c9;
     fill: #4d22c9;
     font-weight: bold;
 }
 
-.ui .__meta .__scoreboard .listing svg {
+.game-ui .__meta .__scoreboard .listing svg {
     width: .9rem;
 }
-.ui .__meta .__scoreboard .listing.lost {
+.game-ui .__meta .__scoreboard .listing.lost {
     opacity: .25;
 }
 
-.ui .__meta .__character {
+.game-ui .__meta .__character {
     position: relative;
     text-align: center;
     flex-shrink: 1;
     flex-basis: 40vh;
     overflow: hidden;
 }
-.ui .__meta .__character .__character-name .__title {
+.game-ui .__meta .__character .__character-name .__title {
     text-transform: uppercase;
     font-weight: bold;
     display: inline-block;
     color: #fff;
 }
-body.spectator .ui .__meta .__character .__character-name .__title {
+body.spectator .game-ui .__meta .__character .__character-name .__title {
     color: #000;
 }
-.ui .__meta .__character .__character-name .__information {
+.game-ui .__meta .__character .__character-name .__information {
     height: 1.5rem;
     position: relative;
     top: .45rem;
     display: inline;
     color: #fff;
 }
-.ui .__meta .__character .__character-portrait  {
+.game-ui .__meta .__character .__character-portrait  {
     width: 75%;
     position: absolute; 
     left: 0; 

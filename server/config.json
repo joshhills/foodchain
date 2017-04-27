@@ -16,5 +16,6 @@
         "DISCONNECTED": "DISCONNECTED",
         "PLAYING": "PLAYING",
         "WON": "WON"
-    }
+    },
+    "MAX_PLAYERS": 5
 }

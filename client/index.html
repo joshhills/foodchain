@@ -5,21 +5,21 @@
 		<title>
 			Foodchain
 		</title>
-        <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;" />
+        <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" />
         <!-- Styles -->
-        <link href="client/styles/app.css" rel="stylesheet" />
+        <link href="styles/app.css" rel="stylesheet" />
         <!-- Scripts -->
 	</head>
 	<body>
         <!-- Wrapper -->
         <div class="wrapper">
             <!-- Interactable Game Area -->
-            <div class="stage">
+            <div id="stage" class="stage none">
                 <svg id="background" class="__canvas--state-background"></svg>
                 <svg id="canvas" class="__canvas"></svg>
             </div>
             <!-- Game State UI -->
-            <div class="ui" id="ui">
+            <div class="game-ui none" id="game-ui">
                 <!-- Controls -->
                 <div id="controls" class="__controls">
                     <div class="__controls-panel panel">
@@ -74,13 +74,91 @@
                     </div>
                 </div>
             </div>
+            <!-- Menu UI -->
+            <div class="menu-ui" id="menu-ui">
+                <div id="social" class="__social">
+                    <!-- Logo -->
+                    <div class="__logo">
+                        <img src="client/images/logo-zoo.svg" />
+                    </div>
+                </div>
+                <div id="intro" class="__intro">
+                    <div class="__intro-panel panel">
+                        <h1>
+                            Welcome to the zoo!
+                        </h1>
+                        <p>
+                            Do your 'bit' to help preserve the natural habitat of endangered species worldwide by playing our game!
+                        </p>
+                        <p>
+                            Instructions (placeholder):
+                        </p>
+                        <ul>
+                            <li>
+                                Tap a tile to try to claim it
+                            </li>
+                            <li>
+                                Tap a tile you own to fortify it
+                            </li>
+                            <li>
+                                Cut off or encircle opponents to free and take more territory
+                            </li>
+                            <li>
+                                Gain more moves the more territory you have.
+                            </li>
+                            <li>
+                                Eliminate your opponent's territory to win!
+                            </li>
+                        </ul>
+                        <div class="button-group">
+                            <button id="quick-game" onclick="javascript:playQuick()">
+                                Quick Play
+                            </button>
+                            <span>or</span>
+                            <button id="private-game">
+                                Private Game
+                            </button>
+                        </div>
+                        <div class="__code">
+                            <p>Have a code?</p>
+                            <div class="input-group">
+                                <input type="text" id="code" name="code" placeholder="Put it here!" />
+                                <button id="join-game" onclick="javascript:joinGame()">
+                                    &gt;
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="meta" class="__meta">
+                    <!-- Global Stats -->
+                    <div id="global-stats" class="__global-stats panel">
+                        <table>
+                            <tr>
+                                <td>
+                                    <img src="client/images/icons/icon-fence.svg" alt="Stats" />
+                                </td>
+                                <td class="__header">
+                                    TODAY @ THE ZOO
+                                </td>
+                            </tr>
+                        </table>
+                        <p><span id="fighting">0</span> species fighting</p>
+                        <p><span id="waiting">0</span> species waiting</p>
+                        <p><span id="tiles-claimed">0</span> tiles claimed (placeholder)</p>
+                    </div>
+                    <!-- Character selection -->
+                    <div id="character-cta" class="__character-cta panel">
+                        <p>Sponsor an animal to play (placeholder)</p>
+                        <img src="client/images/icons/icon-buy.svg" alt="Buy characters" />
+                        <p>£<span id="money-raised">X.XX</span> raised</p>
+                    </div>
+                </div>
+            </div>
         </div>
         <!-- Scripts -->
         <script type="text/javascript" src="client/scripts/lib.js"></script>
         <script type="text/javascript" src="client/scripts/game.js"></script>
         <script type="text/javascript" src="client/scripts/client.js"></script>
-        <script type="text/javascript">
-            document.body.requestFullscreen();
-        </script>
 	</body>
 </html>

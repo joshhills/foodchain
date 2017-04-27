@@ -14,11 +14,13 @@
 var socket;
 var tiles = [];
 var claims = [];
+
 var activePlayer;
+var inGameView = false;
 
 const size = new Point(30, 30);
 const sizeGap = new Point(10, 10);
-var origin, layout, map, background, canvas, clipPath, timer, scoreboard, characterPotrait, characterName, gameId, spectators;
+var origin, layout, map, stage, background, canvas, clipPath, timer, scoreboard, characterPotrait, characterName, gameId, fighting, waiting, tilesClaimed, spectators, menuUI, gameUI, code;
 
 /* Init Functions */
 
@@ -56,6 +58,13 @@ function retrieveDisplayElements() {
     characterPotrait = document.getElementById('character-portrait');
     characterName = document.getElementById('character-name');
     spectators = document.getElementById('spectators');
+    gameUI = document.getElementById('game-ui');
+    menuUI = document.getElementById('menu-ui');
+    stage = document.getElementById('stage');
+    fighting = document.getElementById('fighting');
+    waiting = document.getElementById('waiting');
+    tilesClaimed = document.getElementById('tiles-claimed');
+    code = document.getElementById('code');
 }
 
 /**
@@ -67,6 +76,7 @@ function addEventListeners() {
 }
 
 function handleWindowResize() {
+    if(inGameView) {
         origin = getCenteredOrigin();
         layout = new Layout(layout_flat, size, origin);
         drawBackground(background, layout);
@@ -76,6 +86,7 @@ function handleWindowResize() {
         for(var claim of claims) {
             drawTile(claim, canvas, layout);
         }
+    }
 }
 
 function handleCanvasClick(e) {
@@ -90,15 +101,29 @@ function initLibraryPrerequisites() {
 }
 
 function initSockets() {
-    // Get the game ID.
+    // Figure out if there's already a game to join...
     gameId = getParameterByName('gameId');
-    // Set up the initial connection.
-    if(!socket) {
-        socket = io({query:"gameId=" + gameId});
+    if(!gameId) {
+        displayMenu();
+        if(!socket) {
+            socket = io();
+        }
+    } else {
+        // Set up the initial connection.
+        if(!socket) {
+            socket = io({query:"gameId=" + gameId});
+        }
     }
     
+    // Menu
+    socket.on('fighting', displayFighting);
+    socket.on('waiting', displayWaiting);
+    socket.on('tilesClaimed', displayTilesClaimed);
+    
+    // Game
+    socket.on('joinSuccess', displayGame);
     socket.on('full', displayGameFull);
-    socket.on('timer', displayTimer)
+    socket.on('timer', displayTimer);
     socket.on('map', displayMap);
     socket.on('move', displayMove);
     socket.on('claimSuccess', displayClaimSuccess);
@@ -117,12 +142,29 @@ function initSockets() {
 function init() {
     // Display
     retrieveDisplayElements();
+    
     addEventListeners();
     initLibraryPrerequisites();
     
     drawBackground(background, layout);
     
     initSockets();
+}
+
+function playQuick() {
+    socket.emit('playQuick');
+    displayGame();
+}
+
+function playPrivate() {
+    
+}
+
+function joinGame() {
+    var gameId = code.value;
+    if(gameId) {
+        socket.emit('join', gameId);
+    }
 }
 
 /* Utility Functions */
@@ -207,7 +249,23 @@ function comparePlayers(p1, p2) {
     return 0;
 }
 
-/* Display Functions */
+/* Major Display Functions */
+
+function displayMenu() {
+    menuUI.style.display = "visible";
+    gameUI.style.display = "none";
+    stage.style.display = "none";
+    inGameView = false;
+}
+
+function displayGame() {
+    menuUI.style.display = "none";
+    gameUI.style.display = "visible";
+    stage.style.display = "visible";
+    inGameView = true;
+}
+
+/* Sub-Display Functions */
 
 /**
  * Draw an array of tiles
@@ -453,6 +511,7 @@ function displaySpectators(numSpectators) {
 }
 
 function displayWinner(winner) {
+    // Display.
     alert(winner.character.name + ' has won.');
 }
 
@@ -464,12 +523,16 @@ function displayMap(data) {
     drawMap(tiles, canvas, layout);
 }
 
-/**
- * Update the display to reflect new information
- * about players.
- */
-function updatePlayerInformation(playerInfo) {
-    
+function dispayFighting(numFighting) {
+    fighting.innerHTML = numFighting;
+}
+
+function displayWaiting(numWaiting) {
+    waiting.innerHTML = numWaiting;
+}
+
+function displayTilesClaimed(numTilesClaimed) {
+    tilesClaimed = numTilesClaimed;
 }
 
 init();

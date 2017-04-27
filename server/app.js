@@ -245,6 +245,7 @@ var maps = require('./maps.json');
 var characters = require('./characters.json');
 
 // Manage lobbies.
+var lobby = [];
 var games = [];
 
 // Serve the correct game page.
@@ -990,6 +991,9 @@ function startGame(game) {
         },
         1000
     );
+    
+    // Emit number.
+    io.emit('fighting', games.length);
 }
 
 /* Matchmaking */
@@ -999,12 +1003,21 @@ function getRandomGameId() {
     return Math.random().toString(36).substr(2, 5);
 }
 
+function getMap(numPlayers) {
+    var potentialMaps = [];
+    for(var map of maps) {
+        if(map['players'] == numPlayers) {
+            potentialMaps.push(map);
+        }
+    }
+    return getRandomItemFromArray(potentialMaps, true);
+}
+
 function getRandomMap() {
-    // TODO: Make context-based decision.
     return getRandomItemFromArray(maps, true);
 }
 
-function createGame(gameId) {
+function createGame(gameId, numPlayers) {
     if(!gameId) {
         gameId = getRandomGameId();
     }
@@ -1018,10 +1031,18 @@ function createGame(gameId) {
         winner: {},
         created: new Date().getTime(),
         state: CONFIG['GAME_STATES']['SETUP'],
-        map: getRandomMap(),
+        map: [],
         turn: [],
         turns: []
     };
+    
+    // Get an appropriate map.
+    if(!numPlayers) {
+        game['map'] = getRandomMap();
+    } else {
+        getMap(numPlayers);
+    }
+    
     games.push(game);
     return game;
 }
@@ -1072,6 +1093,8 @@ function removeGame(game) {
             games.splice(i, 1);
         }
     }
+    // Emit number.
+    io.emit('fighting', games.length);
 }
 
 function removePlayerFromGame(socket) {
@@ -1092,59 +1115,164 @@ function removeSpectatorFromGame(socket) {
     }
 }
 
+function generateUID() {
+    var firstPart = (Math.random() * 46656) | 0;
+    var secondPart = (Math.random() * 46656) | 0;
+    firstPart = ("000" + firstPart.toString(36)).slice(-3);
+    secondPart = ("000" + secondPart.toString(36)).slice(-3);
+    return firstPart + secondPart;
+}
+
+function generateGameId(){ 
+    var gameId, collision;
+    do {
+        collision = false;
+        gameId = generateGameId();
+        for(var game of games) {
+            if(gameId == game['id']) {
+                collision = true;
+            }
+        }
+    } while(collision);
+    return gameId;
+}
+
+function attemptMatch() {
+    var seeking = [];
+    // Sweep through lobby to find seeking players.
+    for(var player of lobby) {
+        if(player['seeking']) {
+            seeking.push(player);
+            if(seeking.length == 2) {
+                // Get a game ID.
+                var gameId = generateGameId();
+                
+                // Create game.
+                var game = createGame(gameId, seeking.length);
+                
+                // Add players to game.
+                for(var player of seeking) {
+                    (player['socket']['id']);
+                    addPlayerToGame(game, player['socket']);
+                    registerGameListeners(game, player['socket']);
+                }
+                
+                // Start game.
+                startGame(game);
+                
+                // Empty pairing.
+                seeking = [];
+            }
+        }
+    }
+}
+
+function setSeekingToTrue(socketId) {
+    var player = findInLobby(socketId);
+    if(player) {
+        player['seeking'] = true;
+    }
+}
+
+function removeFromLobby(socketId) {
+    for(var i in lobby) {
+        if(lobby[i]['socket']['id'] == socketId) {
+            lobby.splice(i, 1);
+            return;
+        }
+    }
+    // Emit number.
+    io.emit('waiting', lobby.length);
+}
+
+function addToLobby(socket) {
+    lobby.push({
+        socket: socket,
+        seeking: false
+    });
+    // Emit number.
+    io.emit('waiting', lobby.length);
+}
+
+function findInLobby(socketId) {
+    for(var player of lobby) {
+        if(player['socket']['id'] == socketId) {
+            return player;
+        }
+    }
+}
+
 /* Sockets Registry */
+
+function registerGameListeners(game, socket) {
+    socket.on('claim', function(data) {
+            handleClaim(socket, data)
+        });
+    socket.on('disconnect', function() {
+        removePlayerFromGame(socket);
+        sendToAllPlayersOfGame(game, 'disconnected', socket['id'], true);
+    });
+}
 
 // Handle initial connection.
 io.on('connection', function (socket) {
     // Get the game ID requested.
     gameId = socket.handshake.query.gameId;
-    
-    console.log('Player connected requesting gameId ' + gameId + ' on socket ' + socket.id);
-    
-    // Find the right game.
-    var found = false;
-    var game = {};
-    if(gameId) {
-        for(var i = 0; i < games.length; i++) {
-            // Game already exists.
-            if(games[i]['id'] == gameId) {
-                found = true;
-                game = games[i];
-                if(game['players'].length < game['map']['players']) {
-                    addPlayerToGame(game, socket);
-                } else {
-                    addSpectatorToGame(game, socket);
-                    sendToAllPlayersOfGame(game, 'spectators', game['spectatorSockets'].length, true);
-                    sendToPlayerOfGame(socket, game, 'map', JSON.stringify(game['map']['tiles']), true);
-                    socket.on('disconnect', function() {
-                        removeSpectatorFromGame(socket);
+
+    // Add to lobby.
+    if(!gameId) {
+        addToLobby(socket.id);
+        
+        // Register menu listeners.
+        socket.on('playQuick', function(data) {
+            setSeekingToTrue(socket.id);
+            attemptMatch();
+        });
+        
+        // TODO: Private match.
+        
+        socket.on('disconnect', function() {
+           removeFromLobby(socket.id);
+        });
+    } else {
+        // Find the right game.
+        var found = false;
+        var game = {};
+        if(gameId) {
+            for(var i = 0; i < games.length; i++) {
+                // Game already exists.
+                if(games[i]['id'] == gameId) {
+                    found = true;
+                    game = games[i];
+                    if(game['players'].length < game['map']['players']) {
+                        addPlayerToGame(game, socket);
+                    } else {
+                        addSpectatorToGame(game, socket);
                         sendToAllPlayersOfGame(game, 'spectators', game['spectatorSockets'].length, true);
-                    });
-                    return;
+                        sendToPlayerOfGame(socket, game, 'map', JSON.stringify(game['map']['tiles']), true);
+                        socket.on('disconnect', function() {
+                            removeSpectatorFromGame(socket);
+                            sendToAllPlayersOfGame(game, 'spectators', game['spectatorSockets'].length, true);
+                        });
+                        return;
+                    }
                 }
             }
         }
+        if(!found) {
+            game = createGame(gameId);
+            addPlayerToGame(game, socket);
+        }
+
+        // If there are enough players to fulfill the map requirements...
+        if(game['players'].length == game['map']['players']) {
+            // Set the game to be in progress.
+            startGame(game);
+        }
+
+        // Register game listeners.
+        registerGameListeners(game, socket);
     }
-    // TODO: Matchmaking...
-    if(!found) {
-        game = createGame(gameId);
-        addPlayerToGame(game, socket);
-    }
-    
-    // If there are enough players to fulfill the map requirements...
-    if(game['players'].length == game['map']['players']) {
-        // Set the game to be in progress.
-        startGame(game);
-    }
-    
-    // Register listeners.
-    socket.on('claim', function(data) {
-        handleClaim(socket, data)
-    });
-    socket.on('disconnect', function() {
-        removePlayerFromGame(socket);
-        sendToAllPlayersOfGame(game, 'disconnected', socket['id'], true);
-    });
 });
 
 /* Utility Functions */

@@ -1149,26 +1149,10 @@ function attemptMatch() {
     for(var player of lobby) {
         if(player['seeking']) {
             seeking.push(player);
-            if(seeking.length == 2) {
-                // Get a game ID.
-                var gameId = generateGameId();
-                
-                // Create game.
-                var game = createGame(gameId, seeking.length);
-                
-                // Add players to game.
-                for(var player of seeking) {
-                    joinGame(player['socket'], gameId);
-                    removeFromLobby(player['socket']);
-                }
-                
-                // Start game.
-                startGame(game);
-                
-                // Empty pairing.
-                seeking = [];
-            }
         }
+    }
+    for(var i in seeking) {
+        console.log(i);
     }
 }
 

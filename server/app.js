@@ -1154,9 +1154,7 @@ function attemptMatch() {
                 
                 // Add players to game.
                 for(var player of seeking) {
-                    (player['socket']['id']);
-                    addPlayerToGame(game, player['socket']);
-                    registerGameListeners(game, player['socket']);
+                    joinGame(player['socket'], gameId);
                 }
                 
                 // Start game.
@@ -1226,6 +1224,7 @@ function joinGame(socket, gameId) {
                 sendToAllPlayersOfGame(game, 'spectators', game['spectatorSockets'].length, true);
             });
         }
+        registerGameListeners(game, socket);
         return true;
     } else {
         return false;
@@ -1259,7 +1258,9 @@ io.on('connection', function (socket) {
             attemptMatch();
         });
         
-        // TODO: Private match.
+        socket.on('join', function(requestedGameId) {
+            joinGame(socket, requestedGameId); 
+        });
         
         socket.on('disconnect', function() {
            removeFromLobby(socket.id);
@@ -1273,11 +1274,11 @@ io.on('connection', function (socket) {
             addPlayerToGame(game, socket);
         }
 
-        // If there are enough players to fulfill the map requirements...
-        if(game['players'].length == game['map']['players']) {
-            // Set the game to be in progress.
-            startGame(game);
-        }
+//        // If there are enough players to fulfill the map requirements...
+//        if(game['players'].length == game['map']['players']) {
+//            // Set the game to be in progress.
+//            startGame(game);
+//        }
 
         // Register game listeners.
         registerGameListeners(game, socket);

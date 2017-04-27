@@ -225,8 +225,10 @@ body {
 .game-ui .__middle .__pregame {
     padding: 1rem;
     position: absolute;
-    height: calc(100% - 2rem);
-    width: calc(100% - 2rem);
+    top: 0;
+    left: 0;
+    height: calc(100% - 2rem - 10px);
+    width: calc(100% - 2rem - 10px);
 }
 .game-ui .__middle .__pregame h1 {
     margin-top: 0;

@@ -553,6 +553,7 @@ function displayGameId(gameId) {
 
 function displayStart() {
     pregame.style.visibility = "hidden";
+    displayGame();
 }
 
 init();

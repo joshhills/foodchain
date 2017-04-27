@@ -1189,6 +1189,7 @@ function removeFromLobby(socketId) {
 }
 
 function addToLobby(socket) {
+    console.log('Adding ' + socket.id + 'to lobby');
     lobby.push({
         socket: socket,
         seeking: false

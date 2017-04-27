@@ -1238,7 +1238,7 @@ function checkAllReady(game) {
         if(!player['ready']) {
             allReady = false;
         } else {
-            var readyCount++;
+            readyCount++;
         }
     }
     sendToAllPlayersOfGame(game, 'ready', readyCount, true);

@@ -1129,7 +1129,7 @@ function generateGameId(){
     var gameId, collision;
     do {
         collision = false;
-        gameId = generateGameId();
+        gameId = generateUID();
         for(var game of games) {
             if(gameId == game['id']) {
                 collision = true;

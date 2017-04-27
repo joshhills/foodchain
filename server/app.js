@@ -1174,7 +1174,7 @@ function setSeekingToTrue(socketId) {
     if(player) {
         player['seeking'] = true;
     }
-    console.log('Set player with id ' + player.id ' seeking to true');
+    console.log('Set player with id ' + player.id + ' seeking to true');
 }
 
 function removeFromLobby(socketId) {

@@ -1167,7 +1167,7 @@ function attemptMatch() {
         // Add players to game.
         for(var player of players) {
             joinGame(player['socket'], gameId);
-            removeFromLobby(player['socket']);
+            removeFromLobby(player['socket']['id']);
         }
 
         // Start game.

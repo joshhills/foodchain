@@ -1299,7 +1299,7 @@ io.on('connection', function (socket) {
             addPlayerToGame(game, socket);
             registerGameListeners(game, socket);
             // By this point, in a game, emit its ID to allow others to join.
-            socket.emit('gameId', gameId);
+            socket.emit('gameId', game['id']);
         });
         
         socket.on('join', function(requestedGameId) {

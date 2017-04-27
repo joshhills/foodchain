@@ -523,7 +523,7 @@ function displayMap(data) {
     drawMap(tiles, canvas, layout);
 }
 
-function dispayFighting(numFighting) {
+function displayFighting(numFighting) {
     fighting.innerHTML = numFighting;
 }
 

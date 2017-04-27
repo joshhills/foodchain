@@ -3,7 +3,7 @@
 /* UI */
 
 .none {
-    display: none !important;
+    visibility: hidden;
 }
 
 html {

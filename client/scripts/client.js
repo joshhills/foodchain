@@ -252,16 +252,16 @@ function comparePlayers(p1, p2) {
 /* Major Display Functions */
 
 function displayMenu() {
-    menuUI.style.display = "visible";
-    gameUI.style.display = "none";
-    stage.style.display = "none";
+    menuUI.style.visibility = "visible";
+    gameUI.style.visibility = "hidden";
+    stage.style.visibility = "hidden";
     inGameView = false;
 }
 
 function displayGame() {
-    menuUI.style.display = "none";
-    gameUI.style.display = "visible";
-    stage.style.display = "visible";
+    menuUI.style.visibility = "hidden";
+    gameUI.style.visibility = "visible";
+    stage.style.visibility = "visible";
     inGameView = true;
 }
 

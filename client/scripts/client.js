@@ -65,6 +65,8 @@ function retrieveDisplayElements() {
     waiting = document.getElementById('waiting');
     tilesClaimed = document.getElementById('tiles-claimed');
     code = document.getElementById('code');
+    gameCode = document.getElementById('game-code');
+    hidden = document.getElementById('pregame');
 }
 
 /**
@@ -121,6 +123,7 @@ function initSockets() {
     socket.on('tilesClaimed', displayTilesClaimed);
     
     // Game
+    socket.on('start', displayStart);
     socket.on('gameId', displayGameId);
     socket.on('joinSuccess', displayGame);
     socket.on('full', displayGameFull);
@@ -166,6 +169,10 @@ function joinGame() {
     if(gameId) {
         socket.emit('join', gameId);
     }
+}
+
+function ready() {
+    socket.emit('ready');
 }
 
 /* Utility Functions */
@@ -538,6 +545,14 @@ function displayWaiting(numWaiting) {
 
 function displayTilesClaimed(numTilesClaimed) {
     tilesClaimed = numTilesClaimed;
+}
+
+function displayGameId(gameId) {
+    gameCode.innerHTML = gameId;
+}
+
+function displayStart() {
+    pregame.style.visibility = "hidden";
 }
 
 init();

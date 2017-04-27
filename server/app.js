@@ -1042,7 +1042,7 @@ function createGame(gameId, numPlayers) {
     if(!numPlayers) {
         game['map'] = getRandomMap();
     } else {
-        getMap(numPlayers);
+        game['map'] = getMap(numPlayers);
     }
     
     games.push(game);
@@ -1174,7 +1174,6 @@ function setSeekingToTrue(socketId) {
     if(player) {
         player['seeking'] = true;
     }
-    console.log('Set player with id ' + player.id + ' seeking to true');
 }
 
 function removeFromLobby(socketId) {

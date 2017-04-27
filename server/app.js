@@ -968,6 +968,8 @@ function cycleGameTurn(game) {
 }
 
 function startGame(game) {
+    console.log('Starting a game');
+    
     // Apply spawns.
     var playersToAssign = game['players'].slice();
     for(var tile of game['map']['tiles']) {
@@ -1172,6 +1174,7 @@ function setSeekingToTrue(socketId) {
     if(player) {
         player['seeking'] = true;
     }
+    console.log('Set player with id ' + player.id ' seeking to true');
 }
 
 function removeFromLobby(socketId) {

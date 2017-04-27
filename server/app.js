@@ -1204,6 +1204,34 @@ function findInLobby(socketId) {
     }
 }
 
+function findGameById(gameId) {
+    for(var game of games) {
+        if(gameId == game['id']) {
+            return game;
+        }
+    }
+}
+
+function joinGame(socket, gameId) {
+    var game = findGameById(gameId);
+    if(game) {
+        if(game['players'].length < game['map']['players']) {
+            addPlayerToGame(game, socket);
+        } else {
+            addSpectatorToGame(game, socket);
+            sendToAllPlayersOfGame(game, 'spectators', game['spectatorSockets'].length, true);
+            sendToPlayerOfGame(socket, game, 'map', JSON.stringify(game['map']['tiles']), true);
+            socket.on('disconnect', function() {
+                removeSpectatorFromGame(socket);
+                sendToAllPlayersOfGame(game, 'spectators', game['spectatorSockets'].length, true);
+            });
+        }
+        return true;
+    } else {
+        return false;
+    }
+}
+
 /* Sockets Registry */
 
 function registerGameListeners(game, socket) {
@@ -1238,29 +1266,8 @@ io.on('connection', function (socket) {
         });
     } else {
         // Find the right game.
-        var found = false;
-        var game = {};
-        if(gameId) {
-            for(var i = 0; i < games.length; i++) {
-                // Game already exists.
-                if(games[i]['id'] == gameId) {
-                    found = true;
-                    game = games[i];
-                    if(game['players'].length < game['map']['players']) {
-                        addPlayerToGame(game, socket);
-                    } else {
-                        addSpectatorToGame(game, socket);
-                        sendToAllPlayersOfGame(game, 'spectators', game['spectatorSockets'].length, true);
-                        sendToPlayerOfGame(socket, game, 'map', JSON.stringify(game['map']['tiles']), true);
-                        socket.on('disconnect', function() {
-                            removeSpectatorFromGame(socket);
-                            sendToAllPlayersOfGame(game, 'spectators', game['spectatorSockets'].length, true);
-                        });
-                        return;
-                    }
-                }
-            }
-        }
+        var found = joinGame(socket, gameId);
+        
         if(!found) {
             game = createGame(gameId);
             addPlayerToGame(game, socket);

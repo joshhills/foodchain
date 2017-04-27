@@ -967,7 +967,7 @@ function startGame(game) {
     console.log('Starting a game');
     
     // If there is no map yet.
-    if(game['map'] == []) {
+    if(game['map'] == null) {
         console.log('Assigning a map.');
         game['map'] = getMap(game['players'].length);
     }
@@ -1041,10 +1041,10 @@ function createGame(gameId, numPlayers) {
     };
     
     // Get an appropriate map.
-    if(!numPlayers) {
-        game['map'] = getRandomMap();
-    } else {
+    if(numPlayers) {
         game['map'] = getMap(numPlayers);
+    } else {
+        game['map'] = null;
     }
     
     games.push(game);
@@ -1294,6 +1294,12 @@ io.on('connection', function (socket) {
         socket.on('playQuick', function(data) {
             setSeekingToTrue(socket.id);
             attemptMatch();
+        });
+        
+        socket.on('playPrivate', function(data) {
+            var game = createGame(gameId);
+            addPlayerToGame(game, socket);
+            registerGameListeners(game, socket);
         });
         
         socket.on('join', function(requestedGameId) {

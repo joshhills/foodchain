@@ -20,7 +20,7 @@ var inGameView = false;
 
 const size = new Point(30, 30);
 const sizeGap = new Point(10, 10);
-var origin, layout, map, stage, background, canvas, clipPath, timer, scoreboard, characterPotrait, characterName, gameId, fighting, waiting, tilesClaimed, spectators, menuUI, gameUI, code, pregame;
+var origin, layout, map, stage, background, canvas, clipPath, timer, scoreboard, characterPotrait, characterName, gameId, fighting, waiting, tilesClaimed, spectators, menuUI, gameUI, code, pregame, numReady, ready;
 
 /* Init Functions */
 
@@ -67,6 +67,8 @@ function retrieveDisplayElements() {
     code = document.getElementById('code');
     gameCode = document.getElementById('game-code');
     pregame = document.getElementById('pregame');
+    numReady = document.getElementById('num-ready');
+    ready = document.getElementById('ready');
 }
 
 /**
@@ -173,6 +175,7 @@ function joinGame() {
 
 function ready() {
     socket.emit('ready');
+    ready.style.visibility = "hidden";
 }
 
 /* Utility Functions */
@@ -554,6 +557,10 @@ function displayGameId(gameId) {
 
 function displayStart() {
     pregame.style.visibility = "hidden";
+}
+
+function displayReady(numReady) {
+    numReady.innerHTML = numReady;
 }
 
 init();

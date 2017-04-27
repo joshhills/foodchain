@@ -1156,13 +1156,14 @@ function attemptMatch() {
         // Get a game ID.
         var gameId = generateGameId();
 
-        // Create game.
-        var game = createGame(gameId, seeking.length);
-
         var players = [
             seeking[i],
             seeking[i+1]
         ];
+        
+        // Create game.
+        var game = createGame(gameId, players.length);
+        
         // Add players to game.
         for(var player of players) {
             joinGame(player['socket'], gameId);

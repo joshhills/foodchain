@@ -1070,6 +1070,7 @@ function addPlayerToGame(game, socket) {
     // Add the player to the game.
     var player = {
         id: socket['id'],
+        ready: false,
         character: character,
         territory: 0,
         moves: CONFIG['ACTION_POINTS'] + 1,
@@ -1254,6 +1255,8 @@ function handleReady(socket) {
     console.log('Player trying to ready up...');
     var game = findGameBySocket(socket, games);
     var player = findPlayerBySocket(socket, player);
+    console.log(game['id']);
+    console.log(player);
     if(game && player && game['state'] == CONFIG['GAME_STATES']['SETUP']) {
         // Register player as ready.
         player['ready'] = true;

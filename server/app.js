@@ -1085,6 +1085,7 @@ function addPlayerToGame(game, socket) {
 }
 
 function addSpectatorToGame(game, socket) {
+    removeSpectatorFromGame(socket);
     game['spectatorSockets'].push(socket);
     socket.emit('spectator');
 }
@@ -1225,6 +1226,8 @@ function joinGame(socket, gameId) {
             });
         }
         registerGameListeners(game, socket);
+        // By this point, in a game, emit its ID to allow others to join.
+        socket.emit('gameId', gameId);
         return true;
     } else {
         return false;

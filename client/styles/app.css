@@ -253,6 +253,10 @@ body {
     font-weight: bold;
 }
 
+.game-ui .__meta .__scoreboard .listing.disconnected {
+    opacity: 0.3;
+}
+
 .game-ui .__meta .__scoreboard .listing svg {
     width: .9rem;
 }

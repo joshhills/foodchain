@@ -344,7 +344,7 @@ body.character-rhino .panel {
 }
 body.character-leopard .panel {
     background-color: #908719;
-    border: 5px solid #8d600b;
+    border: 5px solid #5c3f09;
     border-radius: 10px;   
 }
 body.character-snake .panel {
@@ -388,12 +388,12 @@ body .tile.character-rhino.owned > * {
 }
 
 body.character-leopard .tile {
-    stroke: #8d600b;
+    stroke: #5c3f09;
     stroke-width: 5px;
 }
 body .tile.character-leopard.claimed > *,
 body .tile.character-leopard.owned > * {
-    fill: #d3c41c;
+    fill: #fde900;
     fill-opacity: 0.33;
 }
 

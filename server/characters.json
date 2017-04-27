@@ -8,11 +8,11 @@
         "class": "rhino"
     },
     {
-        "name": "Leopard",
-        "class": "leopard"
-    },
-    {
         "name": "Snake",
         "class": "Snake"
+    },
+    {
+        "name": "Leopard",
+        "class": "leopard"
     }
 ]

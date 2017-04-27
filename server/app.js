@@ -1225,7 +1225,7 @@ io.on('connection', function (socket) {
 
     // Add to lobby.
     if(!gameId) {
-        addToLobby(socket.id);
+        addToLobby(socket);
         
         // Register menu listeners.
         socket.on('playQuick', function(data) {

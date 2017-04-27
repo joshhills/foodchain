@@ -9,7 +9,7 @@
     },
     {
         "name": "Snake",
-        "class": "Snake"
+        "class": "snake"
     },
     {
         "name": "Leopard",

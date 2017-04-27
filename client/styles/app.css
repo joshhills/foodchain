@@ -349,7 +349,7 @@ body.character-leopard .panel {
 }
 body.character-snake .panel {
     background-color: #148d19;
-    border: 5px solid #148d19;
+    border: 5px solid #0e3806;
     border-radius: 10px;   
 }
 
@@ -398,7 +398,7 @@ body .tile.character-leopard.owned > * {
 }
 
 body.character-snake .tile {
-    stroke: #1a620c;
+    stroke: #0e3806;
     stroke-width: 5px;
 }
 body .tile.character-snake.claimed > *,

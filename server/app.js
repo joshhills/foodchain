@@ -1298,6 +1298,8 @@ io.on('connection', function (socket) {
             var game = createGame(gameId);
             addPlayerToGame(game, socket);
             registerGameListeners(game, socket);
+            // By this point, in a game, emit its ID to allow others to join.
+            socket.emit('gameId', gameId);
         });
         
         socket.on('join', function(requestedGameId) {

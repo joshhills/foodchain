@@ -1,6 +1,6 @@
 {
     "PORT": 3006,
-    "HOST": "/backstage/experiments/foodchain",
+    "HOST": "/",
     "TIMER": 10,
     "MAX_CLAIMS": 3,
     "ACTION_POINTS": 2,

@@ -249,9 +249,7 @@ var lobby = [];
 var games = [];
 
 // Serve the correct game page.
-app.get('/backstage/experiments/foodchain', function(req, res) {
-    res.sendFile(path.resolve('../client/index.html'));
-});
+app.use(express.static('../client'));
 
 /* Game Logic */
 

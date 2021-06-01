@@ -1,13 +1,13 @@
 <html>
     <head>
-        <script type="text/javascript" src="https://jumbledjargon.tech/socket.io/socket.io.js"></script>
+        <script type="text/javascript" src="./scripts/socket.io.js"></script>
         <!-- Meta -->
 		<title>
 			Foodchain
 		</title>
         <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" />
         <!-- Styles -->
-        <link href="client/styles/app.css" rel="stylesheet" />
+        <link href="./styles/app.css" rel="stylesheet" />
         <!-- Scripts -->
 	</head>
 	<body>
@@ -25,30 +25,30 @@
                     <div class="__controls-panel panel">
                         <!-- Timer -->
                         <div class="__timer control">
-                            <img src="client/images/icons/icon-timer.svg" alt="timer" />
+                            <img src="./images/icons/icon-timer.svg" alt="timer" />
                             <span id="timer">
                                 30
                             </span>
                         </div>
                         <!-- Spectators -->
                         <div class="__spectators control">
-                            <img src="client/images/icons/icon-spectators.svg" alt="spectators" />
+                            <img src="./images/icons/icon-spectators.svg" alt="spectators" />
                             <span id="spectators">
                                 0
                             </span>
                         </div>
                         <!-- Replay -->
                         <div id="replay" class="__replay control">
-                            <img src="client/images/icons/icon-replay.svg" alt="replay" />
+                            <img src="./images/icons/icon-replay.svg" alt="replay" />
                         </div>
                         <!-- Hint -->
                         <div id="hint" class="__hint control">
-                            <img src="client/images/icons/icon-hint.svg" />
+                            <img src="./images/icons/icon-hint.svg" />
                         </div>
                     </div>
                     <!-- Logo -->
                     <div class="__logo">
-                        <img src="client/images/logo-zoo.svg" />
+                        <img src="./images/logo-zoo.svg" />
                     </div>
                 </div>
                 <div class="__middle">
@@ -82,7 +82,7 @@
                     <div class="__character panel">
                         <div class="__character-name">
                             <p id="character-name" class="__title">Red Panda</p>
-                            <img src="client/images/icons/icon-information.svg" alt="Information about this character..." id="character-information" class="__information" />
+                            <img src="./images/icons/icon-information.svg" alt="Information about this character..." id="character-information" class="__information" />
                         </div>
                         <img id="character-portrait" class="__character-portrait" src="" />
                     </div>
@@ -93,7 +93,7 @@
                 <div id="social" class="__social">
                     <!-- Logo -->
                     <div class="__logo">
-                        <img src="client/images/logo-zoo.svg" />
+                        <img src="./images/logo-zoo.svg" />
                     </div>
                 </div>
                 <div id="intro" class="__intro">
@@ -124,9 +124,6 @@
                                 Eliminate your opponent's territory to win!
                             </li>
                         </ul>
-                        <p>
-                            At the moment, only quick play works...
-                        </p>
                         <div class="button-group">
                             <button id="quick-game" onclick="javascript:playQuick()">
                                 Quick Play
@@ -153,7 +150,7 @@
                         <table>
                             <tr>
                                 <td>
-                                    <img src="client/images/icons/icon-fence.svg" alt="Stats" />
+                                    <img src="./images/icons/icon-fence.svg" alt="Stats" />
                                 </td>
                                 <td class="__header">
                                     TODAY @ THE ZOO
@@ -167,15 +164,15 @@
                     <!-- Character selection -->
                     <div id="character-cta" class="__character-cta panel">
                         <p>Sponsor an animal to play (placeholder)</p>
-                        <img src="client/images/icons/icon-buy.svg" alt="Buy characters" />
+                        <img src="./images/icons/icon-buy.svg" alt="Buy characters" />
                         <p>£<span id="money-raised">X.XX</span> raised</p>
                     </div>
                 </div>
             </div>
         </div>
         <!-- Scripts -->
-        <script type="text/javascript" src="client/scripts/lib.js"></script>
-        <script type="text/javascript" src="client/scripts/game.js"></script>
-        <script type="text/javascript" src="client/scripts/client.js"></script>
+        <script type="text/javascript" src="./scripts/lib.js"></script>
+        <script type="text/javascript" src="./scripts/game.js"></script>
+        <script type="text/javascript" src="./scripts/client.js"></script>
 	</body>
 </html>

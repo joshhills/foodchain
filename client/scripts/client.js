@@ -500,7 +500,7 @@ function displayClaimFailure(tile) {
 function displayPlayer(player) {
     activePlayer = player;
     document.body.className = 'character-' + player.character.class;
-    characterPotrait.src = 'client/images/characters/character-' + player.character.class + '.svg';
+    characterPotrait.src = './images/characters/character-' + player.character.class + '.svg';
     characterName.innerHTML = player.character.name;
 }
 
@@ -509,7 +509,7 @@ function displaySpectator() {
     readyButton.style.visibility = "hidden";
     characterName.innerHTML = activePlayer;
     document.body.className = 'spectator';
-    characterPotrait.src = 'client/images/characters/spectator.svg';
+    characterPotrait.src = './images/characters/spectator.svg';
 }
 
 function displayPlayers(data) {

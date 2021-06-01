@@ -249,7 +249,7 @@ var lobby = [];
 var games = [];
 
 // Serve the correct game page.
-app.use(express.static('../client'));
+app.use(express.static('client'));
 
 /* Game Logic */
 
